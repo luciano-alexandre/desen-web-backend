@@ -397,7 +397,7 @@ Leitura:
 
 Organiza partes da aplicação em blocos coesos.
 
-Exemplo mental:
+Exemplo:
 
 - módulo de usuários;
 - módulo de autenticação;
