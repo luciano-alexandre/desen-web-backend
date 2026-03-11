@@ -641,7 +641,7 @@ seguintes.
 
 ## Material Complementar
 
-- `NestJS` Documentation: https://docs.nestjs.com/
-- `Node.js` Documentation: https://nodejs.org/docs/latest/api/
+- `NestJS` Documentação: https://docs.nestjs.com/
+- `Node.js` Documentação: https://nodejs.org/docs/latest/api/
 - MDN Web Docs, visão geral de `HTTP`: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview
 - MDN Web Docs, introdução prática a `JSON`: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/JSON
