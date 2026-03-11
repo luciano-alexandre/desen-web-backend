@@ -1,4 +1,4 @@
-# Desenvolvimento Web Backend (NestJS)
+# Desenvolvimento Web Backend
 
 Repositório estruturado para a disciplina de **Desenvolvimento Web Backend**
 do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
