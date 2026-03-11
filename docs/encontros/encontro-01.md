@@ -64,6 +64,12 @@ Essas responsabilidades são tipicamente do frontend.
 
 ## Cliente, servidor, API e banco de dados
 
+Antes de detalhar esses elementos, vale definir `HTTP` de forma breve: HTTP
+(`HyperText Transfer Protocol`) é o protocolo de comunicação usado para troca
+de requisições e respostas entre clientes e servidores na Web. Ele define como
+um pedido é enviado, como a resposta retorna e quais métodos, cabeçalhos e
+códigos de status participam dessa comunicação.
+
 ### Cliente
 
 É quem consome o sistema. Pode ser:
