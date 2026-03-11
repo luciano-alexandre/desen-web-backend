@@ -268,7 +268,8 @@ linha de comando e serviços em rede.
 
 Um ponto importante é que `Node.js` não é uma linguagem nova. A linguagem
 continua sendo `JavaScript` ou, em muitos projetos modernos, `TypeScript`
-transpilado para JavaScript. O `Node.js` é o ambiente que fornece recursos para
+transpilado para JavaScript (ou seja, convertido de TypeScript para JavaScript
+antes da execução). O `Node.js` é o ambiente que fornece recursos para
 executar esse código fora do navegador.
 
 Além de executar JavaScript, o `Node.js` oferece APIs e bibliotecas nativas
