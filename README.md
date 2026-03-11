@@ -30,7 +30,7 @@ do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
 - [Avaliação](docs/avaliacao.md)
 - [Projeto Integrador](projetos/projeto-integrador.md)
 
-## Direção tecnológica da disciplina
+## Resumo da Disciplina
 
 - Backend principal em `NestJS`
 - Validação com `class-validator` e `class-transformer`
