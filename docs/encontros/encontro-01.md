@@ -260,6 +260,40 @@ Content-Type: application/json
 `Node.js` é um ambiente de execução JavaScript fora do navegador. Ele permite
 usar JavaScript no servidor.
 
+De forma mais precisa, `Node.js` é uma plataforma construída sobre o motor `V8`
+do Google Chrome, criada para executar código JavaScript no lado do servidor.
+Enquanto o JavaScript surgiu originalmente para rodar em navegadores, o
+`Node.js` expandiu esse uso para aplicações backend, automações, ferramentas de
+linha de comando e serviços em rede.
+
+Um ponto importante é que `Node.js` não é uma linguagem nova. A linguagem
+continua sendo `JavaScript` ou, em muitos projetos modernos, `TypeScript`
+transpilado para JavaScript. O `Node.js` é o ambiente que fornece recursos para
+executar esse código fora do navegador.
+
+Além de executar JavaScript, o `Node.js` oferece APIs e bibliotecas nativas
+para tarefas comuns no backend, como:
+
+- criar servidores HTTP;
+- ler e escrever arquivos;
+- acessar variáveis de ambiente;
+- abrir conexões de rede;
+- trabalhar com processos do sistema;
+- integrar bibliotecas externas pelo ecossistema `npm`.
+
+Outro conceito central é que o `Node.js` trabalha muito bem com operações
+assíncronas e orientadas a eventos. Em aplicações Web, isso é valioso porque o
+servidor frequentemente precisa aguardar respostas de banco de dados, arquivos
+ou APIs externas sem bloquear toda a aplicação durante essa espera.
+
+Por isso, `Node.js` se tornou uma opção muito popular para:
+
+- APIs REST;
+- microsserviços;
+- aplicações em tempo real;
+- gateways de integração;
+- ferramentas de desenvolvimento.
+
 Com `Node.js`, é possível:
 
 - criar servidores HTTP;
