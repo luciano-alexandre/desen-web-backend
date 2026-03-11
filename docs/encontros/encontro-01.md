@@ -564,7 +564,15 @@ Algumas rotas apenas processam ou validam dados sem persistência.
 
 `GET` deve buscar dados. Criar ou alterar recursos usa outros métodos.
 
-## Exercícios de fixação
+## Questões para Revisão
+
+- Por que não faz sentido um frontend acessar diretamente o banco?
+- Em quais situações uma API atende mais de um tipo de cliente?
+- O que acontece se o backend não validar os dados recebidos?
+- Por que organização arquitetural importa desde aplicações pequenas?
+
+
+## Exercícios de Fixação
 
 ### Exercício 1
 
@@ -607,13 +615,6 @@ export class UsersController {
   }
 }
 ```
-
-## Questões para Revisão
-
-- Por que não faz sentido um frontend acessar diretamente o banco?
-- Em quais situações uma API atende mais de um tipo de cliente?
-- O que acontece se o backend não validar os dados recebidos?
-- Por que organização arquitetural importa desde aplicações pequenas?
 
 ## Checklist de aprendizagem
 
