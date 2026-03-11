@@ -639,16 +639,9 @@ aplicações da disciplina de forma modular, organizada e escalável.
 Esse conhecimento é pré-requisito para praticamente todos os encontros
 seguintes.
 
-## Material complementar sugerido
+## Material Complementar
 
-- Documentação oficial do `NestJS`
-- Documentação do `Node.js`
-- Material de apoio sobre HTTP e JSON
-
-## Entrega
-
-- Sem entrega formal.
-- Recomenda-se registrar por escrito:
-  - definição de backend;
-  - exemplo de fluxo cliente-servidor;
-  - diferença entre `controller` e `service`.
+- `NestJS` Documentation: https://docs.nestjs.com/
+- `Node.js` Documentation: https://nodejs.org/docs/latest/api/
+- MDN Web Docs, visão geral de `HTTP`: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview
+- MDN Web Docs, introdução prática a `JSON`: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/JSON
