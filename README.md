@@ -35,7 +35,7 @@ do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
 - Backend principal em `NestJS`
 - Validação com `class-validator` e `class-transformer`
 - Autenticação com `Passport` e `JWT`
-- Banco relacional com `PostgreSQL`
+- Banco relacional com `PostgreSQL` e `Neon DB`
 - Banco não relacional com `MongoDB`
 - Testes com `Jest` e `Supertest`
 - Deploy com `Docker` e plataforma de nuvem

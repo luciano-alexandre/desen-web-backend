@@ -14,7 +14,7 @@ implantação de aplicações Web.
 - Utilizar um framework back-end para tratar requisições, validar dados e
   autenticar usuários.
 - Realizar deploy de aplicações Web e consumir APIs RESTful.
-- Operar bases de dados relacionais e não relacionais.
+- Operar bases de dados relacionais com PostgreSQL e Neon DB, além de bases não relacionais.
 
 ## Bases científico-tecnológicas (conteúdos)
 
@@ -32,5 +32,5 @@ implantação de aplicações Web.
 3. Deploy de aplicações Web.
 4. Acesso a APIs RESTful.
 5. Acesso a dados.
-   1. Operações básicas com bases de dados relacionais.
+   1. Operações básicas com PostgreSQL e conexão a instância Neon DB.
    2. Operações básicas com bases de dados não relacionais (NoSQL).

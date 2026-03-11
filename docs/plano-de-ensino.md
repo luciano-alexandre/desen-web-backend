@@ -29,6 +29,7 @@ framework, autenticação, integração com APIs, persistência de dados e deplo
 - Insomnia ou Postman
 - Docker Desktop ou Podman
 - PostgreSQL
+- Neon DB
 - MongoDB
 - Git e GitHub
 - Plataforma de deploy em nuvem
@@ -37,7 +38,7 @@ framework, autenticação, integração com APIs, persistência de dados e deplo
 
 - Unidade 1: Fundamentos de backend com NestJS e construção de APIs básicas.
 - Unidade 2: Formulários, autenticação, sessões, integração externa e testes.
-- Unidade 3: Persistência relacional/NoSQL, deploy e projeto final.
+- Unidade 3: Persistência relacional com PostgreSQL + Neon DB, NoSQL, deploy e projeto final.
 
 ## Avaliação
 
@@ -49,5 +50,5 @@ framework, autenticação, integração com APIs, persistência de dados e deplo
 
 - Documentação oficial do NestJS.
 - Documentação oficial do Node.js.
-- Documentações oficiais de PostgreSQL e MongoDB.
+- Documentações oficiais de PostgreSQL, Neon DB e MongoDB.
 - Materiais complementares indicados em `docs/referencias.md`.

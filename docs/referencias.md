@@ -9,6 +9,7 @@
 ## Persistência e dados
 
 - PostgreSQL: modelagem relacional, SQL básico e constraints.
+- Neon DB: provisionamento, string de conexão, branching e uso de Postgres gerenciado.
 - Prisma ou TypeORM: mapeamento de dados e migrações.
 - MongoDB e Mongoose: documentos, coleções e operações básicas.
 

@@ -39,7 +39,7 @@ serviços externos, acesso a bancos relacionais e não relacionais e deploy.
 3. Implementar controladores, serviços, módulos e DTOs com validação.
 4. Tratar formulários, serialização de dados, sessões e autenticação.
 5. Construir e consumir APIs RESTful e integrar serviços externos.
-6. Operar persistência básica com PostgreSQL e MongoDB.
+6. Operar persistência básica com PostgreSQL, Neon DB e MongoDB.
 7. Realizar testes, documentar endpoints e efetuar deploy de aplicações.
 
 ## Estrutura por Unidades
@@ -56,7 +56,8 @@ de APIs.
 
 ### Unidade 3 (Encontros 27 a 40)
 
-Bancos de dados relacionais e não relacionais, deploy, observabilidade e
+Bancos de dados relacionais e não relacionais, com uso de PostgreSQL e Neon DB
+na trilha relacional, além de deploy, observabilidade e
 projeto integrador final.
 
 ## Avaliação (resumo)

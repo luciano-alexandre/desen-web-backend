@@ -30,10 +30,10 @@ Cada encontro corresponde a 2 aulas de 45 minutos (90 minutos por encontro).
 | [24](./encontros/encontro-24.md) | U2 | Arquitetura limpa no NestJS e refatoração de módulos | Checkpoint arquitetura |
 | [25](./encontros/encontro-25.md) | U2 | Testes de autenticação e integração externa | Prática 12 |
 | [26](./encontros/encontro-26.md) | U2 | Revisão da Unidade 2 e avaliação prática | Avaliação U2 |
-| [27](./encontros/encontro-27.md) | U3 | Introdução à persistência relacional e modelagem | - |
-| [28](./encontros/encontro-28.md) | U3 | PostgreSQL: tabelas, chaves e operações SQL básicas | Prática 13 |
-| [29](./encontros/encontro-29.md) | U3 | Integração NestJS + ORM relacional | Prática 14 |
-| [30](./encontros/encontro-30.md) | U3 | Migrations, seeds e repositórios | Checkpoint relacional |
+| [27](./encontros/encontro-27.md) | U3 | Introdução à persistência relacional, modelagem e estratégia com PostgreSQL + Neon DB | - |
+| [28](./encontros/encontro-28.md) | U3 | PostgreSQL + Neon DB: tabelas, chaves, conexão e operações SQL básicas | Prática 13 |
+| [29](./encontros/encontro-29.md) | U3 | Integração NestJS + ORM relacional com PostgreSQL/Neon | Prática 14 |
+| [30](./encontros/encontro-30.md) | U3 | Migrations, seeds e repositórios em ambiente local e cloud | Checkpoint relacional |
 | [31](./encontros/encontro-31.md) | U3 | Introdução a NoSQL e modelagem orientada a documentos | - |
 | [32](./encontros/encontro-32.md) | U3 | MongoDB e Mongoose com NestJS | Prática 15 |
 | [33](./encontros/encontro-33.md) | U3 | Comparação relacional x NoSQL e critérios de escolha | Debate técnico |

@@ -2,11 +2,11 @@
 
 ## Tema
 
-Integração NestJS + ORM relacional.
+Integração NestJS + ORM relacional com PostgreSQL/Neon.
 
 ## Objetivos
 
-- Conectar a aplicação ao PostgreSQL.
+- Conectar a aplicação ao PostgreSQL local ou ao Neon DB.
 - Implementar persistência real em módulo de domínio.
 - Mapear operações CRUD com ORM.
 
@@ -14,7 +14,7 @@ Integração NestJS + ORM relacional.
 
 - ORM relacional.
 - Entidades e repositórios.
-- Conexão e serviço de dados.
+- Configuração de ambiente para conexão local e cloud.
 
 ## Entrega
 
