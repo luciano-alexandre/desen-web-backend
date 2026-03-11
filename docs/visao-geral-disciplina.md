@@ -67,8 +67,6 @@ projeto final.
 - U3: 40 pontos
 - Total: 100 pontos
 
-Ver detalhes em [Avaliação](./avaliacao.md).
-
 ## Produtos Finais Esperados
 
 - APIs REST funcionais implementadas em NestJS.
