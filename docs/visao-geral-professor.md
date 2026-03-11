@@ -1,39 +1,27 @@
 # Visão Geral do Professor
 
-## Intenção pedagógica
+## Apresentação
+Este documento apresenta o perfil acadêmico e profissional do professor responsável pela disciplina, com foco em formação, experiência docente e atuação em pesquisa e extensão.
 
-A disciplina deve equilibrar fundamentos conceituais de Web back-end com
-execução prática contínua em laboratório. O estudante precisa sair do semestre
-com repertório suficiente para criar uma API pequena, segura o bastante para um
-projeto acadêmico e publicada em ambiente real.
+## Dados do Professor
+- **Nome:** Luciano Alexandre de Farias Silva
 
-## Decisões didáticas
+## Formação Acadêmica
+- Técnico em Informática pelo IFRN - Campus Currais Novos.
+- Graduado em Tecnologia em Sistemas para Internet pelo IFRN - Currais Novos.
+- Especialista em Arquitetura de Sistemas da Informação.
+- Especialista em Tecnologia da Informação.
+- Mestre em Sistemas e Computação pela UFRN.
 
-- Adotar `NestJS` para introduzir arquitetura modular desde o início.
-- Trabalhar com exemplos curtos e progressivos, evitando projetos monolíticos
-  muito grandes no começo do semestre.
-- Encadear as práticas: cada entrega reaproveita código da anterior.
-- Cobrir persistência relacional e NoSQL com foco operacional, não exaustivo.
-- Reservar a unidade final para deploy e consolidação do projeto integrador.
+## Experiência Docente
+- Atuou como professor substituto no IFRN.
+- Atuou como professor substituto na UFRN/IMD.
+- Atuou como professor efetivo de Informática no IFPE.
+- Atuou como professor efetivo de Informática no IFPB.
+- Atua como professor efetivo de Informática no IFRN.
 
-## Pré-requisitos esperados
+## Pesquisa e Extensão
+Atua em diversos projetos de pesquisa e extensão vinculados aos grupos de pesquisa **NOCs** e **LAICA**, contribuindo para o desenvolvimento acadêmico, tecnológico e social por meio de ações interdisciplinares.
 
-- Lógica de programação.
-- JavaScript moderno.
-- Git e GitHub básicos.
-- Noções introdutórias de front-end e consumo de APIs.
-
-## Estratégia de condução
-
-- Exposição curta no início do encontro.
-- Demonstração de código orientada pelo professor.
-- Laboratório com roteiro e checkpoints.
-- Revisão por pares em momentos-chave.
-- Fechamento com síntese técnica e encaminhamento da próxima prática.
-
-## Evidências de aprendizagem
-
-- Repositório versionado.
-- Entregas por unidade.
-- APIs funcionando localmente e em produção.
-- Documentação mínima de rotas e variáveis de ambiente.
+## Currículo Lattes
+- https://lattes.cnpq.br/9926812031162945
