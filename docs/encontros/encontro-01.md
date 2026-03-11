@@ -536,7 +536,7 @@ O backend pode:
 - armazenar os dados;
 - responder com `201 Created`.
 
-## Conceitos-chave para memorizar
+## Conceitos-chave
 
 - `cliente` consome um serviço;
 - `servidor` processa a requisição;
@@ -608,57 +608,7 @@ export class UsersController {
 }
 ```
 
-## Mini laboratório guiado
-
-### Objetivo
-
-Treinar leitura de requisições, respostas e responsabilidade de cada camada.
-
-### Situação-problema
-
-Um aplicativo de biblioteca precisa listar livros disponíveis.
-
-### Etapa 1
-
-Defina uma rota adequada.
-
-Sugestão esperada:
-
-```http
-GET /livros
-```
-
-### Etapa 2
-
-Defina uma resposta JSON coerente.
-
-Exemplo:
-
-```json
-[
-  { "id": 1, "titulo": "Clean Code", "disponivel": true },
-  { "id": 2, "titulo": "Domain-Driven Design", "disponivel": false }
-]
-```
-
-### Etapa 3
-
-Explique o papel de cada elemento:
-
-- cliente;
-- backend;
-- banco;
-- resposta.
-
-### Etapa 4
-
-Pense como isso seria organizado no NestJS:
-
-- `BooksModule`
-- `BooksController`
-- `BooksService`
-
-## Questões para debate em sala
+## Questões para Revisão
 
 - Por que não faz sentido um frontend acessar diretamente o banco?
 - Em quais situações uma API atende mais de um tipo de cliente?
