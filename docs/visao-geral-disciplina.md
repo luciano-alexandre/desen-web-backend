@@ -1,6 +1,6 @@
 # Visão Geral da Disciplina
 
-## Identificação Rápida
+## Identificação
 
 - Disciplina: Desenvolvimento Web Backend
 - Curso: Tecnologia em Sistemas para Internet (TSI)
@@ -58,16 +58,16 @@ de APIs.
 
 Bancos de dados relacionais e não relacionais, com uso de PostgreSQL e Neon DB
 na trilha relacional, além de deploy, observabilidade e
-projeto integrador final.
+projeto final.
 
-## Avaliação (resumo)
+## Avaliação
 
 - U1: 30 pontos
 - U2: 30 pontos
 - U3: 40 pontos
 - Total: 100 pontos
 
-Ver detalhes em `docs/avaliacao.md`.
+Ver detalhes em [Avaliação](./avaliacao.md).
 
 ## Produtos Finais Esperados
 
