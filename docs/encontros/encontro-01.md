@@ -9,9 +9,9 @@ Apresentação da disciplina, ementa, NestJS e fluxo cliente-servidor.
 - Apresentar a disciplina, a organização do semestre e os produtos esperados.
 - Situar o papel do backend no ecossistema Web.
 - Compreender o fluxo cliente-servidor em aplicações modernas.
-- Introduzir o NestJS como framework-base da disciplina.
+- Introduzir o NestJS como framework-base.
 
-## Visão geral do encontro
+## Visão geral
 
 Este encontro inaugura a disciplina e estabelece a base conceitual que sustenta
 todo o restante do semestre. Antes de programar APIs, autenticação, persistência
@@ -27,76 +27,7 @@ Ao final da leitura e das atividades deste roteiro, o estudante deverá ser capa
 de explicar o fluxo de uma aplicação Web, identificar o papel do backend e
 reconhecer a estrutura inicial de um projeto NestJS.
 
-## Organização da disciplina
-
-### Estrutura geral
-
-- Carga horária total: 60h
-- 40 encontros de 90 minutos
-- Framework-base: `NestJS`
-- Trilhas principais:
-  - construção de APIs
-  - validação e tratamento de dados
-  - autenticação e autorização
-  - integração com serviços externos
-  - persistência com `PostgreSQL`, `Neon DB` e `MongoDB`
-  - testes
-  - deploy
-
-### Produtos esperados no semestre
-
-- APIs funcionais em `NestJS`
-- exercícios práticos orientados
-- checkpoints por unidade
-- projeto integrador final
-- documentação mínima da API
-
-### Como estudar a disciplina
-
-Para ter bom desempenho, o estudante deve:
-
-- acompanhar cada encontro com leitura e prática no mesmo dia;
-- testar exemplos manualmente com `curl`, `Insomnia` ou `Postman`;
-- manter o repositório organizado;
-- registrar dúvidas técnicas durante os laboratórios;
-- revisar conceitos de HTTP, JSON e JavaScript/TypeScript.
-
-## Roteiro sugerido de 90 minutos
-
-### Bloco 1: abertura e contexto (10 min)
-
-- apresentação da disciplina;
-- objetivos do semestre;
-- visão das unidades;
-- combinados de trabalho.
-
-### Bloco 2: fundamentos conceituais (25 min)
-
-- diferença entre frontend e backend;
-- cliente, servidor, API e banco de dados;
-- modelo requisição-resposta;
-- introdução ao protocolo HTTP.
-
-### Bloco 3: fluxo cliente-servidor na prática (20 min)
-
-- leitura de uma requisição HTTP;
-- leitura de uma resposta HTTP;
-- exemplos de rota, método, payload e status code.
-
-### Bloco 4: introdução ao NestJS (20 min)
-
-- o que é `Node.js`;
-- o que é um framework backend;
-- por que usar `NestJS`;
-- conceitos de `module`, `controller` e `service`.
-
-### Bloco 5: consolidação e exercícios (15 min)
-
-- revisão conceitual;
-- exercícios de fixação;
-- mini laboratório de interpretação de fluxo.
-
-## Conceito central: o que é backend?
+## Pergunta central: o que é backend?
 
 O backend é a parte do sistema responsável por processar regras de negócio,
 receber requisições, validar dados, acessar bancos, integrar serviços externos e
