@@ -70,6 +70,11 @@ de requisições e respostas entre clientes e servidores na Web. Ele define como
 um pedido é enviado, como a resposta retorna e quais métodos, cabeçalhos e
 códigos de status participam dessa comunicação.
 
+Também é importante entender `JSON` (`JavaScript Object Notation`), que é um
+formato textual leve e amplamente usado para representar e transportar dados em
+APIs. Em aplicações Web, é comum que clientes enviem dados em JSON para o
+backend e recebam respostas no mesmo formato.
+
 ### Cliente
 
 É quem consome o sistema. Pode ser:
