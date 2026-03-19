@@ -172,83 +172,187 @@ nest g service tarefas
 O que cada comando representa:
 
 - `nest new`: cria estrutura inicial padronizada do projeto.
-- `start:dev`: executa com recompilacao automatica.
+- `start:dev`: executa com recompilação automática.
 - `nest g ...`: acelera criação de arquivos mantendo convenções.
 
-## Roteiro de estudo (90 minutos)
+## Conteúdo completo do encontro (90 minutos)
 
-### Bloco 1 (0-15 min): nivelar conceitos
+### Parte 1 (0-15 min): como escolher framework sem "achismo"
 
-1. Leia as seções "O que é framework backend" e "Biblioteca x framework".
-2. Escreva, com suas palavras, uma definição curta de framework backend.
-3. Responda: qual problema de manutenção um framework ajuda a reduzir?
+Escolher framework não é escolher "o mais famoso", e sim o que resolve melhor
+um contexto técnico real.
 
-Resultado esperado:
+Perguntas que orientam a escolha:
 
-- uma explicação clara, curta e sem copiar texto literal.
+- O projeto precisa escalar equipe ou só entregar rápido um MVP?
+- O time já tem padrões sólidos ou depende de convenções do framework?
+- Qual o nível de exigência em performance e observabilidade?
+- O prazo permite construir arquitetura manual ou pede estrutura pronta?
 
-### Bloco 2 (15-35 min): mapa de frameworks
+Regra prática:
 
-1. Leia o panorama de Express, Fastify, Koa e NestJS.
-2. Identifique um ponto forte e um ponto de atenção de cada um.
-3. Relacione cada framework com um tipo de projeto.
+- se a prioridade é liberdade máxima, frameworks minimalistas costumam ajudar;
+- se a prioridade é padronização e crescimento sustentável, frameworks
+  opinativos normalmente são mais adequados.
 
-Resultado esperado:
+### Parte 2 (15-35 min): comparação técnica dos frameworks
 
-- visão comparativa inicial para evitar escolha por "achismo".
+#### Express
 
-### Bloco 3 (35-60 min): quadro comparativo técnico
+- Vantagem principal: simplicidade e enorme comunidade.
+- Ponto de atenção: pouca estrutura nativa para projetos grandes.
+- Trade-off: começa rápido, mas pode exigir bastante disciplina do time para
+  evitar arquitetura desorganizada.
 
-Monte seu quadro com os 7 critérios da seção de comparação.
-Use este modelo:
+#### Fastify
+
+- Vantagem principal: alto desempenho e boa arquitetura por plugins.
+- Ponto de atenção: menor volume de conteúdo didático que Express.
+- Trade-off: excelente para throughput/latência, mas ainda exige decisões
+  arquiteturais relevantes do time.
+
+#### Koa
+
+- Vantagem principal: núcleo enxuto e elegante.
+- Ponto de atenção: baixo nível de convenções prontas.
+- Trade-off: alto controle técnico, porém maior esforço para padronizar projeto.
+
+#### NestJS
+
+- Vantagem principal: arquitetura modular e padronizada por padrão.
+- Ponto de atenção: curva inicial maior para quem nunca viu decorators e DI.
+- Trade-off: início um pouco mais denso, manutenção e crescimento muito mais
+  previsíveis em projetos médios e grandes.
+
+### Parte 3 (35-55 min): quadro comparativo já preenchido (referência)
 
 | Critério | Express | Fastify | NestJS |
 |---|---|---|---|
-| Produtividade inicial | | | |
-| Escalabilidade de código | | | |
-| Curva de aprendizagem | | | |
-| Testabilidade | | | |
-| Ecossistema | | | |
-| Desempenho | | | |
-| Padronização | | | |
+| Produtividade inicial | Muito alta em APIs simples | Alta | Alta após setup inicial |
+| Escalabilidade de código | Depende muito do time | Boa com boa arquitetura | Alta por modularização nativa |
+| Curva de aprendizagem | Baixa | Baixa a média | Média |
+| Testabilidade | Boa, porém mais manual | Boa | Muito boa com DI e módulos |
+| Ecossistema | Muito amplo | Amplo e crescente | Amplo + integração estruturada |
+| Desempenho | Bom | Muito bom | Bom (pode usar adapter Fastify) |
+| Padronização | Baixa por padrão | Média | Alta |
 
-Como preencher:
+Leitura correta da tabela: não existe "vencedor absoluto". Existe melhor
+adequação por cenário.
 
-- use frases curtas e objetivas;
-- evite "melhor/pior" sem contexto;
-- sempre inclua "depende do cenário" quando apropriado.
+### Parte 4 (55-70 min): cenários resolvidos e decisão técnica
 
-Resultado esperado:
+#### Cenário A: MVP em 4 semanas
 
-- primeira versão do quadro comparativo.
+- Escolha provável: Express.
+- Justificativa:
+  - curva curta para subir API rapidamente;
+  - ecossistema e exemplos abundantes para acelerar entrega.
+- Risco:
+  - crescimento rápido pode gerar dívida técnica se não houver padrão definido.
 
-### Bloco 4 (60-80 min): decisão argumentada por cenário
+#### Cenário B: plataforma corporativa em expansão
 
-Analise os cenários abaixo e indique qual framework você adotaria:
+- Escolha provável: NestJS.
+- Justificativa:
+  - modularização favorece equipes maiores;
+  - DI e separação de responsabilidades melhoram manutenção e testes.
+- Risco:
+  - equipe sem base em TypeScript/arquitetura pode sentir onboarding inicial.
 
-1. API pequena para MVP em 4 semanas.
-2. Plataforma corporativa com vários módulos e equipe em crescimento.
-3. Serviço com alta exigência de performance e baixa latência.
+#### Cenário C: serviço com latência muito sensível
 
-Para cada cenário, responda:
+- Escolha provável: Fastify.
+- Justificativa:
+  - foco em performance e baixo overhead;
+  - arquitetura orientada a plugins eficiente para serviços enxutos.
+- Risco:
+  - com crescimento de domínio, a falta de convenções fortes pode custar caro.
 
-- framework escolhido;
-- 2 justificativas técnicas;
-- 1 risco da escolha.
+Conclusão dos cenários:
 
-Resultado esperado:
+- Express tende a ganhar em simplicidade inicial;
+- Fastify tende a ganhar em performance;
+- NestJS tende a ganhar em organização de longo prazo.
 
-- capacidade de decidir com base em trade-offs reais.
+### Parte 5 (70-85 min): arquitetura NestJS na prática
 
-### Bloco 5 (80-90 min): consolidação
+A estrutura típica de uma funcionalidade em NestJS é:
 
-1. Escreva um paragrafo final respondendo a pergunta central do encontro.
-2. Revise seu quadro comparativo.
-3. Marque pontos que ainda ficaram confusos para tirar dúvidas no próximo encontro.
+- `Controller`: recebe requisição HTTP;
+- `Service`: executa regra de negócio;
+- `Module`: conecta as peças;
+- `DTO` + validação: protege entrada de dados.
 
-Resultado esperado:
+Fluxo simplificado:
 
-- justificativa final clara para a adoção de NestJS no contexto da disciplina.
+```text
+Cliente -> Controller -> Service -> (Banco/API externa) -> Service -> Controller -> Cliente
+```
+
+Exemplo mínimo de organização:
+
+```ts
+// tarefas.service.ts
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class TarefasService {
+  listar() {
+    return [{ id: 1, titulo: 'Revisar frameworks backend' }];
+  }
+}
+```
+
+```ts
+// tarefas.controller.ts
+import { Controller, Get } from '@nestjs/common';
+import { TarefasService } from './tarefas.service';
+
+@Controller('tarefas')
+export class TarefasController {
+  constructor(private readonly tarefasService: TarefasService) {}
+
+  @Get()
+  listar() {
+    return this.tarefasService.listar();
+  }
+}
+```
+
+```ts
+// tarefas.module.ts
+import { Module } from '@nestjs/common';
+import { TarefasController } from './tarefas.controller';
+import { TarefasService } from './tarefas.service';
+
+@Module({
+  controllers: [TarefasController],
+  providers: [TarefasService],
+})
+export class TarefasModule {}
+```
+
+O que este exemplo ensina:
+
+- `@Controller('tarefas')` define prefixo de rota;
+- `@Get()` mapeia método HTTP;
+- `@Injectable()` permite injeção do serviço no controller;
+- `@Module` registra controller e service no contexto da aplicação.
+
+### Parte 6 (85-90 min): síntese final da decisão por NestJS
+
+A disciplina escolhe NestJS porque ele equilibra três pontos centrais para
+formação em backend:
+
+- produtividade com padrão profissional;
+- arquitetura escalável para projetos reais;
+- facilidade de evolução para autenticação, banco, testes e deploy.
+
+Resposta curta para a pergunta central:
+
+Se existem vários frameworks válidos, o NestJS foi escolhido aqui por oferecer
+a melhor combinação entre didática, organização de código e preparação para
+cenários de mercado.
 
 ## Entrega do encontro
 
@@ -258,7 +362,7 @@ Formato sugerido:
 
 - markdown (`.md`) ou PDF de 1 página.
 
-Conteudo minimo:
+Conteúdo mínimo:
 
 - quadro com os 7 critérios;
 - decisão por cenário (3 cenários);
@@ -268,12 +372,12 @@ Conteudo minimo:
 
 Ao final, você deve conseguir:
 
-- explicar diferenca entre biblioteca e framework;
+- explicar diferença entre biblioteca e framework;
 - comparar Express, Fastify e NestJS por critérios técnicos;
-- justificar por que NestJS e adequado para esta trilha;
+- justificar por que NestJS é adequado para esta trilha;
 - reconhecer comandos básicos do ecossistema NestJS.
 
-## Preparacao para o Encontro 04
+## Preparação para o Encontro 04
 
 No próximo encontro, o foco será configuração do ambiente e primeiro projeto.
 Chegue com:
