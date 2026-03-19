@@ -410,9 +410,27 @@ No arquivo `index.html`, use o seguinte ponto de partida:
 
 ### O que você vai revisar neste HTML
 
-- uso de `<header>`, `<section>`, `<form>`, `<input>`, `<select>` e `<ul>`;
-- presença de atributos do Vue, como `v-model`, `v-if`, `v-for` e `@click`;
-- separação entre estrutura, estilo e comportamento.
+Nesta revisão, o foco é entender como o HTML organiza a interface e como ele
+se conecta com o Vue.
+
+- `<header>` e `<section>`: organização semântica da página em blocos lógicos
+  (cabeçalho e conteúdo).
+- `<form>`: ponto de entrada dos dados do usuário.
+  Comando importante no Vue: `@submit.prevent="adicionarTarefa"`.
+  Esse comando intercepta o envio padrão do formulário e chama o método JS.
+- `<input>` e `<select>`: coleta de dados.
+  Comando importante no Vue: `v-model="variavel"`, criando ligação de duas
+  vias entre campo e estado.
+- `<ul>` e `<li>`: renderização de listas.
+  Comando importante no Vue: `v-for="item in lista"` com `:key="item.id"` para
+  atualização eficiente.
+- `v-if` e `v-else`: controle condicional de exibição (mostra mensagem de
+  vazio ou a lista).
+- `@click`: associação de evento de clique a um método (ex.:
+  `@click="alternarStatus(tarefa.id)"`).
+
+Resumo técnico da revisão: HTML define estrutura e significado; Vue adiciona
+comandos declarativos no próprio HTML para conectar interface e dados.
 
 ## Passo 3: estilizar a interface com CSS
 
@@ -530,10 +548,27 @@ button {
 
 ### O que você vai revisar neste CSS
 
-- seletores por classe;
-- espaçamento com `padding`, `margin` e `gap`;
-- estilização de formulário e lista;
-- responsividade básica com `@media`.
+Nesta parte, a revisão é sobre como transformar estrutura em interface legível
+e responsiva.
+
+- Seletores: `.classe`, `elemento` e encadeamento (ex.: `.item span`).
+  Conceito-chave: especificidade e reaproveitamento de classes.
+- Box model e espaçamento:
+  - `padding`: espaço interno;
+  - `margin`: espaço externo;
+  - `gap`: espaço entre itens em `grid`/`flex`.
+- Layout com `display: grid` e `display: flex`:
+  - `grid-template-columns` organiza colunas do formulário;
+  - `justify-content`, `align-items` e `gap` alinham itens da lista.
+- Estilos de estado:
+  - `.item.concluida strong` aplica efeito visual quando a tarefa muda de
+    estado.
+- Responsividade:
+  Comando importante: `@media (max-width: 720px) { ... }` para adaptar layout
+  em telas menores.
+
+Resumo técnico da revisão: CSS controla hierarquia visual, espaçamento,
+alinhamento e adaptação para diferentes tamanhos de tela.
 
 ## Passo 4: implementar a lógica com Vue.js
 
@@ -614,10 +649,27 @@ createApp({
 
 ### O que você vai revisar neste JavaScript
 
-- objeto retornado em `data()`;
-- uso de `computed` para filtrar lista;
-- uso de `methods` para responder a eventos;
-- atualização reativa da tela quando os dados mudam.
+Nesta revisão, você consolida os principais comandos do Vue 3 (Options API) e
+os conceitos de lógica de interface.
+
+- `createApp({ ... }).mount('#app')`:
+  comando base para criar e montar a aplicação no elemento HTML.
+- `data()`:
+  retorna o estado reativo inicial (`titulo`, `novaTarefa`, `tarefas`, etc.).
+- `computed`:
+  `tarefasFiltradas()` calcula dados derivados sem duplicar estado.
+  Conceito-chave: regra de negócio baseada em estado atual.
+- `methods`:
+  concentra ações disparadas por eventos do usuário.
+  - `adicionarTarefa()` usa `trim()`, `unshift()` e `Date.now()`;
+  - `alternarStatus(id)` usa `map()` e operador spread (`...`) para atualizar
+    item específico.
+- Encadeamento com template:
+  comandos no HTML (`@click`, `@submit.prevent`, `v-if`, `v-for`) disparam e
+  refletem os métodos e dados do JavaScript.
+
+Resumo técnico da revisão: JavaScript no Vue organiza estado, regras e ações; a
+reatividade garante atualização automática da tela sem manipulação manual do DOM.
 
 ### Destrinchando o `app.js` da prática
 
