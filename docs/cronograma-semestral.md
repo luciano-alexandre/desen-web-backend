@@ -5,9 +5,9 @@ Cada encontro corresponde a 2 aulas de 45 minutos (90 minutos por encontro).
 | Encontro | Unidade | Tema | Entrega/Checkpoint |
 |---|---|---|---|
 | [1](./encontros/encontro-01.md) | U1 | Apresentação da disciplina, ementa, NestJS e fluxo cliente-servidor | - |
-| [2](./encontros/encontro-02.md) | U1 | Revisão de front-end, HTTP e ciclo requisição-resposta | Mapa de fluxo HTTP |
-| [3](./encontros/encontro-03.md) | U1 | Estado da arte de frameworks backend e decisão por NestJS | Quadro comparativo |
-| [4](./encontros/encontro-04.md) | U1 | Configuração do ambiente: Node.js, Nest CLI, lint e testes | Setup concluído |
+| [2](./encontros/encontro-02.md) | U1 | Revisão de front-end, HTTP e ciclo requisição-resposta | - |
+| [3](./encontros/encontro-03.md) | U1 | Estado da arte de frameworks backend e decisão por NestJS | - |
+| [4](./encontros/encontro-04.md) | U1 | Configuração do ambiente: Node.js, Nest CLI, lint e testes | - |
 | [5](./encontros/encontro-05.md) | U1 | Estrutura de projeto NestJS: modules, controllers e services | API inicial |
 | [6](./encontros/encontro-06.md) | U1 | Rotas, parâmetros, query strings e verbos HTTP | Prática 01 |
 | [7](./encontros/encontro-07.md) | U1 | DTOs, pipes e validação de dados | Prática 02 |

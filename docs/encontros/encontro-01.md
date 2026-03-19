@@ -117,7 +117,7 @@ flowchart LR
     U[Usuario] --> C[Cliente<br/>Browser ou App]
     C -->|HTTP Request| B[Backend API<br/>NestJS]
     B -->|Consulta/Grava| D[(Banco de Dados)]
-    B -->|Integra| E[Servico Externo]
+    B -->|Integra| E[Serviço Externo]
     B -->|HTTP Response| C
 ```
 
@@ -316,7 +316,7 @@ const server = http.createServer((req, res) => {
   }
 
   res.writeHead(404, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ erro: 'Rota nao encontrada' }));
+  res.end(JSON.stringify({ erro: 'Rota não encontrada' }));
 });
 
 server.listen(3000, () => {

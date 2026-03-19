@@ -341,7 +341,7 @@ No arquivo `index.html`, use o seguinte ponto de partida:
   <body>
     <div id="app" class="container">
       <header class="hero">
-        <p class="tag">Revisao Frontend</p>
+        <p class="tag">Revisão Frontend</p>
         <h1>{{ titulo }}</h1>
         <p>{{ descricao }}</p>
       </header>
@@ -581,7 +581,7 @@ createApp({
   data() {
     return {
       titulo: 'Painel de Estudos',
-      descricao: 'Organize tarefas de revisao de HTML, CSS, JavaScript e Vue.',
+      descricao: 'Organize tarefas de revisão de HTML, CSS, JavaScript e Vue.',
       novaTarefa: '',
       categoria: 'HTML',
       filtro: 'Todas',
@@ -748,7 +748,7 @@ createApp({
   setup() {
     const titulo = ref('Painel de Estudos');
     const descricao = ref(
-      'Organize tarefas de revisao de HTML, CSS, JavaScript e Vue.',
+      'Organize tarefas de revisão de HTML, CSS, JavaScript e Vue.',
     );
     const novaTarefa = ref('');
     const categoria = ref('HTML');
