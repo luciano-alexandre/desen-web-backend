@@ -175,9 +175,9 @@ O que cada comando representa:
 - `start:dev`: executa com recompilação automática.
 - `nest g ...`: acelera criação de arquivos mantendo convenções.
 
-## Conteúdo completo do encontro (90 minutos)
+## Conteúdo completo do encontro
 
-### Parte 1 (0-15 min): como escolher framework sem "achismo"
+### Como escolher framework sem "achismo"
 
 Escolher framework não é escolher "o mais famoso", e sim o que resolve melhor
 um contexto técnico real.
@@ -195,7 +195,7 @@ Regra prática:
 - se a prioridade é padronização e crescimento sustentável, frameworks
   opinativos normalmente são mais adequados.
 
-### Parte 2 (15-35 min): comparação técnica dos frameworks
+### Comparação técnica dos frameworks
 
 #### Express
 
@@ -224,7 +224,7 @@ Regra prática:
 - Trade-off: início um pouco mais denso, manutenção e crescimento muito mais
   previsíveis em projetos médios e grandes.
 
-### Parte 3 (35-55 min): quadro comparativo já preenchido (referência)
+### Quadro comparativo já preenchido (referência)
 
 | Critério | Express | Fastify | NestJS |
 |---|---|---|---|
@@ -239,7 +239,7 @@ Regra prática:
 Leitura correta da tabela: não existe "vencedor absoluto". Existe melhor
 adequação por cenário.
 
-### Parte 4 (55-70 min): cenários resolvidos e decisão técnica
+### Cenários resolvidos e decisão técnica
 
 #### Cenário A: MVP em 4 semanas
 
@@ -274,7 +274,7 @@ Conclusão dos cenários:
 - Fastify tende a ganhar em performance;
 - NestJS tende a ganhar em organização de longo prazo.
 
-### Parte 5 (70-85 min): arquitetura NestJS na prática
+### Arquitetura NestJS na prática
 
 A estrutura típica de uma funcionalidade em NestJS é:
 
@@ -339,7 +339,7 @@ O que este exemplo ensina:
 - `@Injectable()` permite injeção do serviço no controller;
 - `@Module` registra controller e service no contexto da aplicação.
 
-### Parte 6 (85-90 min): síntese final da decisão por NestJS
+### Síntese final da decisão por NestJS
 
 A disciplina escolhe NestJS porque ele equilibra três pontos centrais para
 formação em backend:
