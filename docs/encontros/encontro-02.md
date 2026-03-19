@@ -246,10 +246,39 @@ Associa eventos, como clique em botão.
 
 Nesse exemplo:
 
-- `{{ titulo }}` exibe dados na interface;
-- `v-model` conecta o input à variável `novaTarefa`;
-- `@click` chama a função `adicionarTarefa`;
-- `v-for` renderiza a lista.
+- `{{ titulo }}` exibe na tela o valor da propriedade `titulo`.
+- `v-model="novaTarefa"` cria uma ligação de duas vias:
+  - quando o estudante digita, `novaTarefa` é atualizada;
+  - quando `novaTarefa` muda por código, o input também muda.
+- `@click="adicionarTarefa"` conecta o botão a um método do Vue.
+- `v-for="tarefa in tarefas"` repete `<li>` para cada item da lista.
+- `:key="tarefa.id"` ajuda o Vue a atualizar a lista com eficiência.
+
+### Destrinchando o exemplo mínimo (linha por linha)
+
+1. `const { createApp } = Vue;`
+   - Extrai a função principal da biblioteca carregada por CDN.
+2. `createApp({ ... }).mount('#app');`
+   - Cria a aplicação e conecta ao elemento com `id="app"`.
+3. `data() { return { ... } }`
+   - Define o estado reativo inicial da interface.
+   - Tudo que estiver nesse objeto pode ser usado no HTML.
+4. `methods: { adicionarTarefa() { ... } }`
+   - Reúne funções acionadas por eventos da interface.
+5. `if (!this.novaTarefa.trim()) return;`
+   - Evita cadastro de tarefa vazia ou com apenas espaços.
+6. `this.tarefas.push(...)`
+   - Insere um novo objeto na lista, disparando atualização automática da tela.
+7. `this.novaTarefa = '';`
+   - Limpa o campo depois da inserção.
+
+Resumo mental do fluxo:
+
+1. usuário digita no input;
+2. `v-model` atualiza `novaTarefa`;
+3. clique chama `adicionarTarefa`;
+4. método altera `tarefas`;
+5. Vue renderiza novamente a lista sem recarregar a página.
 
 ## Relação com o backend
 
@@ -589,6 +618,166 @@ createApp({
 - uso de `computed` para filtrar lista;
 - uso de `methods` para responder a eventos;
 - atualização reativa da tela quando os dados mudam.
+
+### Destrinchando o `app.js` da prática
+
+#### 1. Estado inicial em `data()`
+
+- `titulo` e `descricao` controlam textos do cabeçalho.
+- `novaTarefa`, `categoria` e `filtro` representam estado do formulário/filtro.
+- `tarefas` guarda a coleção principal da aplicação.
+- Como esses dados são reativos, qualquer alteração neles reflete no HTML.
+
+#### 2. Regra derivada em `computed`
+
+- `tarefasFiltradas()` não armazena novo estado; ela calcula um resultado a
+  partir de `tarefas` e `filtro`.
+- Vantagem: o código do template fica limpo, sem lógica complexa dentro do
+  HTML.
+- O Vue recalcula apenas quando as dependências mudam (`filtro` ou `tarefas`).
+
+#### 3. Ação `adicionarTarefa`
+
+- `trim()` remove espaços extras para validar corretamente.
+- `unshift()` adiciona no início da lista, deixando a tarefa recém-criada no
+  topo.
+- `Date.now()` gera um identificador simples para usar como `key`.
+- Após inserir, o método reseta o formulário para facilitar próximo cadastro.
+
+#### 4. Ação `alternarStatus`
+
+- `map()` gera uma nova lista com base na atual.
+- Apenas a tarefa com `id` correspondente tem `concluida` invertido.
+- O uso de cópia com `{ ...tarefa }` evita mutação acidental de objetos
+  externos e deixa a intenção explícita.
+
+#### 5. Ligação com o HTML
+
+- `@submit.prevent="adicionarTarefa"` evita recarregamento da página.
+- `v-if` e `v-else` alternam entre mensagem de vazio e lista.
+- `:class="{ concluida: tarefa.concluida }"` aplica estilo condicional.
+- `{{ tarefa.concluida ? 'Reabrir' : 'Concluir' }}` altera o rótulo do botão
+  conforme o estado.
+
+## Options API x Composition API
+
+No Vue 3, os dois estilos são oficiais. O código acima usa **Options API**.
+Muitas pessoas chamam Composition API de "Component API", mas o termo correto
+é **Composition API**.
+
+### Options API (a usada neste encontro)
+
+Organiza o componente por blocos: `data`, `computed`, `methods`, `watch`,
+`mounted` etc.
+
+Vantagens para iniciantes:
+
+- leitura direta para quem está começando;
+- separação didática por tipo de recurso;
+- boa para componentes menores e exemplos introdutórios.
+
+### Composition API
+
+Organiza por funcionalidade dentro de `setup()`, usando `ref`, `reactive`,
+`computed`, `watch` e funções reutilizáveis (composables).
+
+Vantagens em projetos maiores:
+
+- agrupa regras relacionadas no mesmo lugar;
+- facilita reutilização de lógica entre componentes;
+- melhora organização quando componente cresce muito.
+
+### Mesmo exemplo em Composition API (equivalente)
+
+```js
+const { createApp, ref, computed } = Vue;
+
+createApp({
+  setup() {
+    const titulo = ref('Painel de Estudos');
+    const descricao = ref(
+      'Organize tarefas de revisao de HTML, CSS, JavaScript e Vue.',
+    );
+    const novaTarefa = ref('');
+    const categoria = ref('HTML');
+    const filtro = ref('Todas');
+    const tarefas = ref([
+      {
+        id: 1,
+        texto: 'Revisar estrutura semantica do HTML',
+        categoria: 'HTML',
+        concluida: false,
+      },
+      {
+        id: 2,
+        texto: 'Praticar seletores e box model',
+        categoria: 'CSS',
+        concluida: true,
+      },
+      {
+        id: 3,
+        texto: 'Relembrar eventos e arrays em JavaScript',
+        categoria: 'JavaScript',
+        concluida: false,
+      },
+    ]);
+
+    const tarefasFiltradas = computed(() => {
+      if (filtro.value === 'Pendentes') {
+        return tarefas.value.filter((tarefa) => !tarefa.concluida);
+      }
+
+      if (filtro.value === 'Concluidas') {
+        return tarefas.value.filter((tarefa) => tarefa.concluida);
+      }
+
+      return tarefas.value;
+    });
+
+    function adicionarTarefa() {
+      if (!novaTarefa.value.trim()) {
+        return;
+      }
+
+      tarefas.value.unshift({
+        id: Date.now(),
+        texto: novaTarefa.value.trim(),
+        categoria: categoria.value,
+        concluida: false,
+      });
+
+      novaTarefa.value = '';
+      categoria.value = 'HTML';
+    }
+
+    function alternarStatus(id) {
+      tarefas.value = tarefas.value.map((tarefa) =>
+        tarefa.id === id
+          ? { ...tarefa, concluida: !tarefa.concluida }
+          : tarefa,
+      );
+    }
+
+    return {
+      titulo,
+      descricao,
+      novaTarefa,
+      categoria,
+      filtro,
+      tarefasFiltradas,
+      adicionarTarefa,
+      alternarStatus,
+    };
+  },
+}).mount('#app');
+```
+
+Diferença prática na leitura:
+
+- na Options API, usa-se `this.novaTarefa`;
+- na Composition API, usa-se `novaTarefa.value` no JavaScript;
+- no template, em ambos os casos o acesso continua simples (`{{ titulo }}`,
+  `v-model="novaTarefa"`), pois o Vue faz o desempacotamento automaticamente.
 
 ## Passo 5: testar a aplicação
 

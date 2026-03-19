@@ -15,32 +15,32 @@ Cada encontro corresponde a 2 aulas de 45 minutos (90 minutos por encontro).
 | [9](./encontros/encontro-09.md) | U1 | CRUD em memória e organização em camadas | Checkpoint CRUD |
 | [10](./encontros/encontro-10.md) | U1 | Testes básicos com Jest e Supertest | Prática 04 |
 | [11](./encontros/encontro-11.md) | U1 | Swagger e documentação de API | Documentação inicial |
-| [12](./encontros/encontro-12.md) | U1 | Revisão da Unidade 1 e avaliação prática | Avaliação U1 |
-| [13](./encontros/encontro-13.md) | U2 | Formulários, serialização e payloads vindos do cliente | - |
-| [14](./encontros/encontro-14.md) | U2 | Upload de arquivos e tratamento multipart | Prática 05 |
-| [15](./encontros/encontro-15.md) | U2 | Cookies, sessão e estado no backend | Prática 06 |
-| [16](./encontros/encontro-16.md) | U2 | Fundamentos de autenticação e autorização | Exercício guiado |
-| [17](./encontros/encontro-17.md) | U2 | Autenticação local com Passport | Prática 07 |
-| [18](./encontros/encontro-18.md) | U2 | JWT, guards e rotas protegidas | Prática 08 |
-| [19](./encontros/encontro-19.md) | U2 | Hash de senha, roles e boas práticas de segurança | Checkpoint Auth |
-| [20](./encontros/encontro-20.md) | U2 | Consumo de APIs RESTful com HttpModule | Prática 09 |
+| [12](./encontros/encontro-12.md) | U1 | Revisão parcial da Unidade 1 e checkpoint prático | Checkpoint U1 |
+| [13](./encontros/encontro-13.md) | U1 | Formulários, serialização e payloads vindos do cliente | - |
+| [14](./encontros/encontro-14.md) | U1 | Upload de arquivos e tratamento multipart | Prática 05 |
+| [15](./encontros/encontro-15.md) | U1 | Cookies, sessão e estado no backend | Prática 06 |
+| [16](./encontros/encontro-16.md) | U1 | Fundamentos de autenticação e autorização | Exercício guiado |
+| [17](./encontros/encontro-17.md) | U1 | Autenticação local com Passport | Prática 07 |
+| [18](./encontros/encontro-18.md) | U1 | JWT, guards e rotas protegidas | Prática 08 |
+| [19](./encontros/encontro-19.md) | U1 | Hash de senha, roles e boas práticas de segurança | Checkpoint Auth |
+| [20](./encontros/encontro-20.md) | U1 | Revisão da Unidade 1 e avaliação prática | Avaliação U1 |
 | [21](./encontros/encontro-21.md) | U2 | Integração com serviços externos e tratamento de falhas | Prática 10 |
 | [22](./encontros/encontro-22.md) | U2 | ConfigModule, variáveis de ambiente e segredos | Prática 11 |
 | [23](./encontros/encontro-23.md) | U2 | Cache, interceptors e performance básica | Estudo dirigido |
 | [24](./encontros/encontro-24.md) | U2 | Arquitetura limpa no NestJS e refatoração de módulos | Checkpoint arquitetura |
 | [25](./encontros/encontro-25.md) | U2 | Testes de autenticação e integração externa | Prática 12 |
-| [26](./encontros/encontro-26.md) | U2 | Revisão da Unidade 2 e avaliação prática | Avaliação U2 |
-| [27](./encontros/encontro-27.md) | U3 | Introdução à persistência relacional, modelagem e estratégia com PostgreSQL + Neon DB | - |
-| [28](./encontros/encontro-28.md) | U3 | PostgreSQL + Neon DB: tabelas, chaves, conexão e operações SQL básicas | Prática 13 |
-| [29](./encontros/encontro-29.md) | U3 | Integração NestJS + ORM relacional com PostgreSQL/Neon | Prática 14 |
-| [30](./encontros/encontro-30.md) | U3 | Migrations, seeds e repositórios em ambiente local e cloud | Checkpoint relacional |
-| [31](./encontros/encontro-31.md) | U3 | Introdução a NoSQL e modelagem orientada a documentos | - |
-| [32](./encontros/encontro-32.md) | U3 | MongoDB e Mongoose com NestJS | Prática 15 |
-| [33](./encontros/encontro-33.md) | U3 | Comparação relacional x NoSQL e critérios de escolha | Debate técnico |
-| [34](./encontros/encontro-34.md) | U3 | Dockerização da aplicação e serviços auxiliares | Ambiente containerizado |
-| [35](./encontros/encontro-35.md) | U3 | Deploy de API NestJS em nuvem | API publicada |
-| [36](./encontros/encontro-36.md) | U3 | Logs, monitoramento e checklist de produção | Checkpoint deploy |
-| [37](./encontros/encontro-37.md) | U3 | Definição do projeto integrador e escopo técnico | Proposta do projeto |
-| [38](./encontros/encontro-38.md) | U3 | Sprint de desenvolvimento orientado | Entrega parcial |
-| [39](./encontros/encontro-39.md) | U3 | Ajustes finais, testes e apresentação técnica | Release candidate |
-| [40](./encontros/encontro-40.md) | U3 | Apresentações finais, feedback e fechamento | Projeto final |
+| [26](./encontros/encontro-26.md) | U2 | Revisão parcial da Unidade 2 e checkpoint técnico | Checkpoint U2 |
+| [27](./encontros/encontro-27.md) | U2 | Introdução à persistência relacional, modelagem e estratégia com PostgreSQL + Neon DB | - |
+| [28](./encontros/encontro-28.md) | U2 | PostgreSQL + Neon DB: tabelas, chaves, conexão e operações SQL básicas | Prática 13 |
+| [29](./encontros/encontro-29.md) | U2 | Integração NestJS + ORM relacional com PostgreSQL/Neon | Prática 14 |
+| [30](./encontros/encontro-30.md) | U2 | Migrations, seeds e repositórios em ambiente local e cloud | Checkpoint relacional |
+| [31](./encontros/encontro-31.md) | U2 | Introdução a NoSQL e modelagem orientada a documentos | - |
+| [32](./encontros/encontro-32.md) | U2 | MongoDB e Mongoose com NestJS | Prática 15 |
+| [33](./encontros/encontro-33.md) | U2 | Comparação relacional x NoSQL e critérios de escolha | Debate técnico |
+| [34](./encontros/encontro-34.md) | U2 | Dockerização da aplicação e serviços auxiliares | Ambiente containerizado |
+| [35](./encontros/encontro-35.md) | U2 | Deploy de API NestJS em nuvem | API publicada |
+| [36](./encontros/encontro-36.md) | U2 | Logs, monitoramento e checklist de produção | Checkpoint deploy |
+| [37](./encontros/encontro-37.md) | U2 | Definição do projeto integrador e escopo técnico | Proposta do projeto |
+| [38](./encontros/encontro-38.md) | U2 | Sprint de desenvolvimento orientado | Entrega parcial |
+| [39](./encontros/encontro-39.md) | U2 | Ajustes finais, testes e apresentação técnica | Release candidate |
+| [40](./encontros/encontro-40.md) | U2 | Apresentações finais, feedback, avaliação e fechamento da Unidade 2 | Projeto final |

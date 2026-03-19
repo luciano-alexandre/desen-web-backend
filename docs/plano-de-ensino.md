@@ -36,15 +36,13 @@ framework, autenticação, integração com APIs, persistência de dados e deplo
 
 ## Organização em unidades
 
-- Unidade 1: Fundamentos de backend com NestJS e construção de APIs básicas.
-- Unidade 2: Formulários, autenticação, sessões, integração externa e testes.
-- Unidade 3: Persistência relacional com PostgreSQL + Neon DB, NoSQL, deploy e projeto final.
+- Unidade 1 (Encontros 1 a 20): Fundamentos de backend com NestJS, construção de APIs básicas, validação, testes iniciais, formulários, autenticação e integração externa.
+- Unidade 2 (Encontros 21 a 40): Persistência relacional com PostgreSQL + Neon DB, NoSQL, deploy, observabilidade e projeto final.
 
 ## Avaliação
 
-- Unidade 1: exercícios, prática guiada e avaliação prática.
-- Unidade 2: checkpoints de autenticação/integração e avaliação prática.
-- Unidade 3: projeto final, deploy e apresentação técnica.
+- Unidade 1: exercícios, prática guiada, checkpoints e avaliação prática (até o encontro 20).
+- Unidade 2: checkpoints de persistência/deploy, projeto final e apresentação técnica (encontros 21 a 40).
 
 ## Bibliografia de referência
 

@@ -44,27 +44,22 @@ serviços externos, acesso a bancos relacionais e não relacionais e deploy.
 
 ## Estrutura por Unidades
 
-### Unidade 1 (Encontros 1 a 12)
+### Unidade 1 (Encontros 1 a 20)
 
-Fundamentos de backend, HTTP, arquitetura cliente-servidor, ambiente NestJS e
-primeiras APIs com validação e tratamento de dados.
+Fundamentos de backend, HTTP, arquitetura cliente-servidor, ambiente NestJS,
+primeiras APIs com validação e tratamento de dados, além de formulários,
+sessões, autenticação e integração externa.
 
-### Unidade 2 (Encontros 13 a 26)
+### Unidade 2 (Encontros 21 a 40)
 
-Autenticação, sessões, formulários, integração externa, documentação e testes
-de APIs.
-
-### Unidade 3 (Encontros 27 a 40)
-
-Bancos de dados relacionais e não relacionais, com uso de PostgreSQL e Neon DB
-na trilha relacional, além de deploy, observabilidade e
+Persistência em bancos de dados relacionais e não relacionais, com uso de
+PostgreSQL e Neon DB na trilha relacional, além de deploy, observabilidade e
 projeto final.
 
 ## Avaliação
 
-- U1: 30 pontos
-- U2: 30 pontos
-- U3: 40 pontos
+- U1: 50 pontos
+- U2: 50 pontos
 - Total: 100 pontos
 
 ## Produtos Finais Esperados

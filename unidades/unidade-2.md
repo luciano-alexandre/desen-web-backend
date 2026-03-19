@@ -2,22 +2,22 @@
 
 ## Tema
 
-Tratamento de dados, formulários, sessões, autenticação e integração externa.
+Persistência de dados, deploy e consolidação do projeto integrador.
 
 ## Objetivos da unidade
 
-- Receber e validar dados da aplicação cliente.
-- Implementar sessões, autenticação e autorização.
-- Consumir APIs RESTful e tratar falhas.
-- Organizar configuração, segurança e testes.
+- Operar banco relacional com PostgreSQL e Neon DB, além de banco não relacional.
+- Integrar NestJS com ORM e ODM.
+- Dockerizar e publicar uma aplicação backend.
+- Entregar projeto final com documentação mínima.
 
 ## Encontros
 
-- 13 a 26
+- 21 a 40
 
 ## Produtos esperados
 
-- Fluxo de login funcional.
-- Rotas protegidas por guard.
-- Integração com ao menos um serviço externo.
-- Avaliação prática da unidade.
+- API com persistência relacional conectada a PostgreSQL ou Neon DB.
+- Módulo com persistência NoSQL.
+- Deploy funcional em nuvem.
+- Projeto final apresentado.

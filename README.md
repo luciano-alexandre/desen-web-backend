@@ -6,7 +6,7 @@ do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
 ## Estrutura do repositório
 
 - `docs/`: documentos acadêmicos e de planejamento da disciplina.
-- `unidades/`: detalhamento pedagógico das 3 unidades do semestre.
+- `unidades/`: detalhamento pedagógico das 2 unidades do semestre.
 - `aulas/`: modelos e orientações para condução dos encontros.
 - `praticas/`: trilhas e roteiros de laboratório.
 - `projetos/`: projeto integrador semestral.
@@ -17,7 +17,7 @@ do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
 - Total de aulas: **80 aulas de 45 minutos**
 - Ritmo semanal: **4 aulas/semana**
 - Total de encontros no semestre: **40 encontros**
-- Organização em **3 unidades**
+- Organização em **2 unidades**
 - Framework de referência: **NestJS**
 
 ## Documentos principais
@@ -28,7 +28,7 @@ do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
 - [Cronograma Semestral (40 encontros)](docs/cronograma-semestral.md)
 - [Ementa e Objetivos](docs/ementa-e-objetivos.md)
 - [Avaliação](docs/avaliacao.md)
-- [Projeto Integrador](projetos/projeto-integrador.md)
+- [Projeto Final](projetos/projeto.md)
 
 ## Resumo da Disciplina
 
