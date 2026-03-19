@@ -408,7 +408,7 @@ No arquivo `index.html`, use o seguinte ponto de partida:
 </html>
 ```
 
-### O que revisar nesse HTML
+### O que você vai revisar neste HTML
 
 - uso de `<header>`, `<section>`, `<form>`, `<input>`, `<select>` e `<ul>`;
 - presença de atributos do Vue, como `v-model`, `v-if`, `v-for` e `@click`;
@@ -528,7 +528,7 @@ button {
 }
 ```
 
-### O que revisar nesse CSS
+### O que você vai revisar neste CSS
 
 - seletores por classe;
 - espaçamento com `padding`, `margin` e `gap`;
@@ -612,7 +612,7 @@ createApp({
 }).mount('#app');
 ```
 
-### O que revisar nesse JavaScript
+### O que você vai revisar neste JavaScript
 
 - objeto retornado em `data()`;
 - uso de `computed` para filtrar lista;
