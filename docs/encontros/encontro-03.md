@@ -6,290 +6,256 @@ Estado da arte de frameworks backend e decisão por NestJS.
 
 ## Objetivos
 
-- Entender o que é um framework backend e por que ele acelera projetos reais.
-- Comparar frameworks populares de Node.js por critérios técnicos objetivos.
-- Compreender os motivos da disciplina adotar NestJS como base.
-- Produzir um quadro comparativo que apoie uma decisão arquitetural.
+- Compreender o papel de frameworks backend em projetos reais.
+- Comparar frameworks de Node.js com critérios técnicos claros.
+- Entender trade-offs de Express, Fastify, Koa e NestJS.
+- Justificar, com base técnica, a adoção de NestJS na disciplina.
 
 ## Visão geral
 
-Neste encontro, o foco é aprender a tomar decisão técnica com critério.
-Em vez de escolher tecnologia por "moda", você vai analisar:
+Depois de consolidar a base de backend no Encontro 01 e revisar o contexto de
+consumo no Encontro 02, este encontro aprofunda uma decisão arquitetural:
+qual framework usar para construir e evoluir APIs no semestre.
 
-- curva de aprendizagem;
-- organização de projeto;
-- desempenho;
-- ecossistema;
-- testabilidade;
-- manutenibilidade.
+O foco aqui não é decorar nomes de ferramentas. O foco é aprender a decidir
+com critério técnico, analisando contexto, custo de manutenção e escala de
+projeto.
 
-Ao final dos 90 minutos, você deve conseguir justificar tecnicamente por que
-um time escolheria Express, Fastify ou NestJS em contextos diferentes.
+Ao final desta leitura, você deve conseguir argumentar por que diferentes
+times podem escolher frameworks diferentes e por que, no contexto desta
+disciplina, o NestJS é a escolha mais adequada.
 
 ## Pergunta central
 
-Se existem vários frameworks backend em Node.js, por que usar NestJS nesta disciplina?
+Se existem vários frameworks backend em Node.js, por que escolher NestJS para
+esta disciplina?
 
-## O que é um framework backend
+## Por que frameworks existem
 
-Um framework backend é um conjunto de convenções, bibliotecas e ferramentas
-que ajuda a estruturar aplicações servidoras.
+Frameworks surgem para reduzir repetição e impor estrutura mínima. Em backend,
+isso significa organizar:
 
-Em termos práticos, ele entrega:
+- rotas e endpoints;
+- fluxo de requisição e resposta;
+- separação de responsabilidades;
+- validação e tratamento de erro;
+- testes e evolução do código.
 
-- organização de rotas, controllers e serviços;
-- padrão para lidar com requisições e respostas;
-- recursos de validação, autenticação e tratamento de erros;
-- integração com testes e bibliotecas de infraestrutura.
+Sem framework, muita coisa pode funcionar no início, mas a tendência é aumentar
+complexidade à medida que o projeto cresce. Frameworks tentam reduzir esse
+custo de crescimento.
 
-Sem framework, quase tudo precisa ser desenhado do zero. Com framework, você
-ganha produtividade e padronização.
+## O que muda quando o projeto cresce
 
-## Biblioteca x framework
+Em APIs pequenas, decisões arquiteturais parecem simples. Em APIs com várias
+funcionalidades, equipe maior e prazos contínuos, os principais problemas são:
 
-- Biblioteca: você chama a biblioteca quando precisa.
-- Framework: o framework chama seu código em pontos esperados.
+- código duplicado;
+- regras espalhadas em múltiplos arquivos;
+- dificuldade de teste;
+- inconsistência de padrões entre módulos;
+- onboarding lento de novos membros.
 
-Esse princípio é conhecido como inversão de controle. Em backend, isso impacta
-diretamente a arquitetura do projeto.
+Por isso, escolher framework não é só sobre produtividade inicial. É também
+sobre sustentabilidade técnica.
 
-## Panorama rápido de frameworks Node.js
+## Critérios técnicos de comparação
+
+Para comparar frameworks de forma profissional, use critérios consistentes:
+
+1. Produtividade inicial: rapidez para colocar uma API funcional no ar.
+2. Escalabilidade de código: facilidade para manter organização com crescimento.
+3. Curva de aprendizagem: esforço necessário para começar e evoluir.
+4. Testabilidade: suporte prático para testes unitários e de integração.
+5. Ecossistema: qualidade de documentação, plugins e comunidade.
+6. Desempenho: custo de processamento e capacidade de resposta.
+7. Padronização: nível de convenção que ajuda o time a manter consistência.
+
+Esses critérios evitam decisões por preferência pessoal ou por hype.
+
+## Panorama dos frameworks mais usados em Node.js
 
 ### Express
 
-- Minimalista e muito popular.
-- Alta flexibilidade.
-- Exige mais decisões arquiteturais do time.
+Express é minimalista e extremamente popular.
 
-Bom para:
+Pontos fortes:
 
-- APIs pequenas e times experientes com padronização própria.
+- sintaxe simples;
+- curva de entrada baixa;
+- vasta quantidade de exemplos e pacotes.
+
+Pontos de atenção:
+
+- pouca estrutura nativa para projetos grandes;
+- depende bastante de disciplina da equipe para manter arquitetura saudável.
+
+Resumo: excelente para começar rápido; exige maturidade de time para escalar.
 
 ### Fastify
 
-- Foco em desempenho e baixo overhead.
-- Ecossistema de plugins robusto.
-- Estrutura ainda enxuta (menos opinativa que NestJS).
+Fastify foi desenhado com forte foco em performance.
 
-Bom para:
+Pontos fortes:
 
-- APIs que precisam alto throughput com arquitetura mais manual.
+- alto desempenho;
+- baixo overhead;
+- bom modelo de plugins.
+
+Pontos de atenção:
+
+- menor volume de material didático do que Express;
+- ainda exige desenho arquitetural mais manual em muitos cenários.
+
+Resumo: ótimo para serviços sensíveis a desempenho com equipe técnica madura.
 
 ### Koa
 
-- Base enxuta criada pelo time original do Express.
-- Forte uso de middlewares.
-- Poucas convenções prontas.
+Koa é enxuto e flexível, mantendo filosofia de baixo acoplamento.
 
-Bom para:
+Pontos fortes:
 
-- times que querem construir arquitetura quase do zero.
+- núcleo pequeno;
+- alto controle sobre composição de middlewares.
+
+Pontos de atenção:
+
+- poucas convenções prontas;
+- pode exigir mais tempo para definir padrões de projeto.
+
+Resumo: poderoso para times que querem construir quase toda a arquitetura.
 
 ### NestJS
 
-- Estrutura opinativa inspirada em arquitetura modular.
-- Usa TypeScript por padrão.
-- DI (injeção de dependência), módulos, controllers, serviços e decorators.
-- Integra bem com testes, validação, autenticação e ORMs.
+NestJS é opinativo e modular, com TypeScript como base natural.
 
-Bom para:
+Pontos fortes:
 
-- projetos que precisam escalar organização de código e equipe.
+- organização por módulos;
+- separação clara entre controller, service e provider;
+- injeção de dependência nativa;
+- forte integração com testes, validação, autenticação e documentação.
 
-## Critérios técnicos para comparar frameworks
+Pontos de atenção:
 
-Use estes critérios no seu quadro comparativo:
+- curva inicial um pouco maior para quem nunca usou decorators e DI;
+- estrutura pode parecer "formal" em APIs muito pequenas.
 
-1. Produtividade inicial: quão rápido é entregar uma API funcional.
-2. Escalabilidade de código: quão fácil é manter o projeto quando cresce.
-3. Curva de aprendizagem: dificuldade para iniciantes no ecossistema.
-4. Testabilidade: facilidade para criar testes unitários e integração.
-5. Ecossistema: plugins, documentação e comunidade.
-6. Desempenho: comportamento sob carga e overhead do framework.
-7. Padronização: apoio a boas práticas sem depender de "acordos verbais".
+Resumo: excelente para projetos que precisam crescer com previsibilidade.
 
-## Por que NestJS nesta disciplina
+## Comparação consolidada
 
-A decisão da disciplina por NestJS prioriza formação profissional com base em:
+| Critério | Express | Fastify | Koa | NestJS |
+|---|---|---|---|---|
+| Produtividade inicial | Muito alta | Alta | Média | Alta |
+| Escalabilidade de código | Média (depende do time) | Média/Alta | Média | Alta |
+| Curva de aprendizagem | Baixa | Baixa/Média | Média | Média |
+| Testabilidade | Boa (mais manual) | Boa | Boa (manual) | Muito boa |
+| Ecossistema | Muito amplo | Amplo e crescente | Amplo | Amplo e estruturado |
+| Desempenho | Bom | Muito bom | Bom | Bom (com opções de adapter) |
+| Padronização | Baixa | Média | Baixa | Alta |
 
-- arquitetura clara por módulos;
-- separação de responsabilidades;
-- padrão consistente para turmas e projetos;
-- facilidade de evoluir para autenticação, banco, testes e deploy;
-- proximidade com práticas adotadas em equipes de mercado.
+Leitura correta da tabela:
 
-Em resumo: o NestJS não é "o único caminho", mas é um caminho didático e
-profissionalmente robusto para aprender backend moderno.
+- nenhum framework é "melhor em tudo";
+- cada opção responde melhor a um tipo de cenário;
+- escolha técnica deve considerar prazo, equipe e expectativa de crescimento.
 
-## Conceitos centrais de NestJS que você precisa dominar desde já
+## Cenários reais de decisão
+
+### Cenário 1: MVP em prazo curto
+
+Contexto: API simples, equipe pequena, necessidade de entrega rápida.
+
+Escolha comum: Express.
+
+Justificativa:
+
+- setup rápido;
+- baixa barreira inicial.
+
+Risco:
+
+- crescimento pode gerar dívida técnica sem padrões claros.
+
+### Cenário 2: produto com crescimento de equipe e domínio
+
+Contexto: múltiplos módulos, manutenção contínua, novas pessoas entrando no time.
+
+Escolha comum: NestJS.
+
+Justificativa:
+
+- modularização e convenções reduzem acoplamento;
+- DI e separação de camadas melhoram manutenção e testes.
+
+Risco:
+
+- onboarding inicial exige domínio de conceitos de arquitetura.
+
+### Cenário 3: serviço de alta exigência de desempenho
+
+Contexto: latência baixa e alta taxa de requisições como prioridade principal.
+
+Escolha comum: Fastify.
+
+Justificativa:
+
+- desempenho superior em muitos cenários;
+- arquitetura orientada a plugins eficiente.
+
+Risco:
+
+- necessidade de maior disciplina arquitetural ao longo do tempo.
+
+## Por que a disciplina adota NestJS
+
+A disciplina busca formar competências que vão além de "fazer funcionar".
+O objetivo é desenvolver capacidade de construir backend com qualidade
+arquitetural e evolução sustentável.
+
+NestJS foi escolhido porque facilita esse objetivo:
+
+- incentiva estrutura profissional desde o início;
+- reduz desorganização quando o projeto cresce;
+- integra bem com recursos que serão usados nos próximos encontros
+  (autenticação, persistência, testes, deploy).
+
+Em outras palavras: a escolha por NestJS é pedagógica e técnica ao mesmo tempo.
+
+## Conceitos essenciais de NestJS para este momento
 
 ### Módulo (`@Module`)
 
-Agrupa partes relacionadas da aplicação e organiza dependências.
+Unidade de organização. Agrupa controllers e providers relacionados a um
+domínio funcional.
 
 ### Controller (`@Controller`)
 
-Define endpoints HTTP e recebe requisições.
+Camada de entrada HTTP. Recebe requisição, delega regra de negócio e devolve
+resposta.
 
 ### Service (`@Injectable`)
 
-Concentra regra de negócio e acesso a dados.
+Camada da regra de negócio. Evita lógica pesada dentro de controllers.
 
-### Dependency Injection (DI)
+### Injeção de dependência (DI)
 
-Permite que classes recebam dependências sem criar tudo manualmente com `new`.
-Isso melhora teste, reutilização e manutenção.
+Mecanismo que fornece dependências automaticamente para classes. Isso melhora:
+
+- testabilidade;
+- reutilização;
+- desacoplamento.
 
 ### Decorators
 
-Metadados que descrevem comportamento do código, como:
+Anotações que descrevem comportamento:
 
-- `@Get()`, `@Post()`, `@Param()`, `@Body()`;
-- `@UseGuards()`, `@UsePipes()`;
-- `@Controller('rota')`.
+- `@Controller`, `@Get`, `@Post`;
+- `@Body`, `@Param`;
+- `@Injectable`, `@Module`.
 
-## Comandos importantes (leitura e reconhecimento)
-
-Mesmo que a configuração completa aconteça no encontro seguinte, você precisa
-reconhecer estes comandos e seu papel:
-
-```bash
-# instala o CLI do NestJS globalmente
-npm install -g @nestjs/cli
-
-# cria um novo projeto NestJS
-nest new api-exemplo
-
-# sobe a aplicação em modo desenvolvimento
-npm run start:dev
-
-# gera módulo, controller e service
-nest g module tarefas
-nest g controller tarefas
-nest g service tarefas
-```
-
-O que cada comando representa:
-
-- `nest new`: cria estrutura inicial padronizada do projeto.
-- `start:dev`: executa com recompilação automática.
-- `nest g ...`: acelera criação de arquivos mantendo convenções.
-
-## Conteúdo completo do encontro
-
-### Como escolher framework sem "achismo"
-
-Escolher framework não é escolher "o mais famoso", e sim o que resolve melhor
-um contexto técnico real.
-
-Perguntas que orientam a escolha:
-
-- O projeto precisa escalar equipe ou só entregar rápido um MVP?
-- O time já tem padrões sólidos ou depende de convenções do framework?
-- Qual o nível de exigência em performance e observabilidade?
-- O prazo permite construir arquitetura manual ou pede estrutura pronta?
-
-Regra prática:
-
-- se a prioridade é liberdade máxima, frameworks minimalistas costumam ajudar;
-- se a prioridade é padronização e crescimento sustentável, frameworks
-  opinativos normalmente são mais adequados.
-
-### Comparação técnica dos frameworks
-
-#### Express
-
-- Vantagem principal: simplicidade e enorme comunidade.
-- Ponto de atenção: pouca estrutura nativa para projetos grandes.
-- Trade-off: começa rápido, mas pode exigir bastante disciplina do time para
-  evitar arquitetura desorganizada.
-
-#### Fastify
-
-- Vantagem principal: alto desempenho e boa arquitetura por plugins.
-- Ponto de atenção: menor volume de conteúdo didático que Express.
-- Trade-off: excelente para throughput/latência, mas ainda exige decisões
-  arquiteturais relevantes do time.
-
-#### Koa
-
-- Vantagem principal: núcleo enxuto e elegante.
-- Ponto de atenção: baixo nível de convenções prontas.
-- Trade-off: alto controle técnico, porém maior esforço para padronizar projeto.
-
-#### NestJS
-
-- Vantagem principal: arquitetura modular e padronizada por padrão.
-- Ponto de atenção: curva inicial maior para quem nunca viu decorators e DI.
-- Trade-off: início um pouco mais denso, manutenção e crescimento muito mais
-  previsíveis em projetos médios e grandes.
-
-### Quadro comparativo já preenchido (referência)
-
-| Critério | Express | Fastify | NestJS |
-|---|---|---|---|
-| Produtividade inicial | Muito alta em APIs simples | Alta | Alta após setup inicial |
-| Escalabilidade de código | Depende muito do time | Boa com boa arquitetura | Alta por modularização nativa |
-| Curva de aprendizagem | Baixa | Baixa a média | Média |
-| Testabilidade | Boa, porém mais manual | Boa | Muito boa com DI e módulos |
-| Ecossistema | Muito amplo | Amplo e crescente | Amplo + integração estruturada |
-| Desempenho | Bom | Muito bom | Bom (pode usar adapter Fastify) |
-| Padronização | Baixa por padrão | Média | Alta |
-
-Leitura correta da tabela: não existe "vencedor absoluto". Existe melhor
-adequação por cenário.
-
-### Cenários resolvidos e decisão técnica
-
-#### Cenário A: MVP em 4 semanas
-
-- Escolha provável: Express.
-- Justificativa:
-  - curva curta para subir API rapidamente;
-  - ecossistema e exemplos abundantes para acelerar entrega.
-- Risco:
-  - crescimento rápido pode gerar dívida técnica se não houver padrão definido.
-
-#### Cenário B: plataforma corporativa em expansão
-
-- Escolha provável: NestJS.
-- Justificativa:
-  - modularização favorece equipes maiores;
-  - DI e separação de responsabilidades melhoram manutenção e testes.
-- Risco:
-  - equipe sem base em TypeScript/arquitetura pode sentir onboarding inicial.
-
-#### Cenário C: serviço com latência muito sensível
-
-- Escolha provável: Fastify.
-- Justificativa:
-  - foco em performance e baixo overhead;
-  - arquitetura orientada a plugins eficiente para serviços enxutos.
-- Risco:
-  - com crescimento de domínio, a falta de convenções fortes pode custar caro.
-
-Conclusão dos cenários:
-
-- Express tende a ganhar em simplicidade inicial;
-- Fastify tende a ganhar em performance;
-- NestJS tende a ganhar em organização de longo prazo.
-
-### Arquitetura NestJS na prática
-
-A estrutura típica de uma funcionalidade em NestJS é:
-
-- `Controller`: recebe requisição HTTP;
-- `Service`: executa regra de negócio;
-- `Module`: conecta as peças;
-- `DTO` + validação: protege entrada de dados.
-
-Fluxo simplificado:
-
-```text
-Cliente -> Controller -> Service -> (Banco/API externa) -> Service -> Controller -> Cliente
-```
-
-Exemplo mínimo de organização:
+## Exemplo mínimo de organização em NestJS
 
 ```ts
 // tarefas.service.ts
@@ -298,7 +264,7 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class TarefasService {
   listar() {
-    return [{ id: 1, titulo: 'Revisar frameworks backend' }];
+    return [{ id: 1, titulo: 'Estudar frameworks backend' }];
   }
 }
 ```
@@ -332,57 +298,43 @@ import { TarefasService } from './tarefas.service';
 export class TarefasModule {}
 ```
 
-O que este exemplo ensina:
+O que observar neste exemplo:
 
-- `@Controller('tarefas')` define prefixo de rota;
-- `@Get()` mapeia método HTTP;
-- `@Injectable()` permite injeção do serviço no controller;
-- `@Module` registra controller e service no contexto da aplicação.
+- controller expõe endpoint;
+- service centraliza regra;
+- module organiza e registra dependências.
 
-### Síntese final da decisão por NestJS
+## Comandos importantes para reconhecimento
 
-A disciplina escolhe NestJS porque ele equilibra três pontos centrais para
-formação em backend:
+```bash
+# instala o CLI do NestJS
+npm install -g @nestjs/cli
 
-- produtividade com padrão profissional;
-- arquitetura escalável para projetos reais;
-- facilidade de evolução para autenticação, banco, testes e deploy.
+# cria projeto
+nest new api-exemplo
 
-Resposta curta para a pergunta central:
+# executa em modo desenvolvimento
+npm run start:dev
 
-Se existem vários frameworks válidos, o NestJS foi escolhido aqui por oferecer
-a melhor combinação entre didática, organização de código e preparação para
-cenários de mercado.
+# gera artefatos principais
+nest g module tarefas
+nest g controller tarefas
+nest g service tarefas
+```
 
-## Entrega do encontro
+Esses comandos serão aplicados na prática do próximo encontro. Aqui, o objetivo
+é entender o papel de cada um no fluxo de desenvolvimento.
 
-Produto: `Quadro comparativo de frameworks backend`.
+## Síntese do encontro
 
-Formato sugerido:
+Você estudou que:
 
-- markdown (`.md`) ou PDF de 1 página.
+- frameworks resolvem problemas de estrutura e manutenção;
+- não existe escolha universalmente melhor, e sim escolha adequada ao contexto;
+- NestJS favorece projetos que exigem organização, padronização e escala.
 
-Conteúdo mínimo:
+Resposta final para a pergunta central:
 
-- quadro com os 7 critérios;
-- decisão por cenário (3 cenários);
-- conclusão final (5 a 8 linhas).
-
-## Checklist de aprendizagem
-
-Ao final, você deve conseguir:
-
-- explicar diferença entre biblioteca e framework;
-- comparar Express, Fastify e NestJS por critérios técnicos;
-- justificar por que NestJS é adequado para esta trilha;
-- reconhecer comandos básicos do ecossistema NestJS.
-
-## Preparação para o Encontro 04
-
-No próximo encontro, o foco será configuração do ambiente e primeiro projeto.
-Chegue com:
-
-- Node.js LTS instalado;
-- `npm` funcionando no terminal;
-- editor configurado (VS Code ou equivalente);
-- seu quadro comparativo finalizado.
+A disciplina escolhe NestJS porque ele oferece o melhor equilíbrio entre
+aprendizagem estruturada, qualidade arquitetural e preparação para cenários
+profissionais de backend.
