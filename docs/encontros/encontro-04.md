@@ -361,38 +361,46 @@ passos práticos da disciplina.
 
 ### Proposta
 
-Realizar uma auditoria técnica de um projeto NestJS já criado para verificar se
-o ambiente está realmente pronto para trabalho em equipe.
+Implementar uma nova rota HTTP no projeto NestJS e validar seu funcionamento
+tanto manualmente quanto por teste automatizado.
 
 ### Requisitos da prática
 
-- usar um projeto NestJS existente da turma (ou o projeto base já criado);
-- coletar e registrar versões de `node`, `npm` e `nest`;
-- executar `npm run build`, `npm run lint`, `npm run test` e `npm run test:e2e`;
-- identificar ao menos um risco técnico real de ambiente, mesmo que pequeno
-  (ex.: ausência de arquivo `.env.example`, versão não documentada, script
-  faltando, aviso recorrente no lint);
-- propor e aplicar uma melhoria simples de padronização no projeto.
+- usar um projeto NestJS já criado;
+- criar uma rota `GET /status` em `app.controller.ts`;
+- retornar um objeto JSON com os campos:
+  - `disciplina`: nome da disciplina;
+  - `modulo`: `Encontro 04`;
+  - `status`: `ok`;
+- manter a rota inicial existente sem quebrar o comportamento atual;
+- executar `npm run start:dev` para validação manual;
+- executar `npm run lint` e `npm run test`.
+
+### Instruções sugeridas
+
+1. No arquivo `app.controller.ts`, adicione um novo método com decorator `@Get('status')`.
+2. Faça o método retornar um objeto com os três campos solicitados.
+3. Inicie a aplicação com `npm run start:dev`.
+4. Teste no navegador acessando `http://localhost:3000/status`.
+5. Confira se a resposta aparece em JSON.
+6. Rode `npm run lint` e `npm run test` para garantir qualidade e estabilidade.
 
 ### Entrega esperada
 
 Ao final, o estudante deve apresentar:
 
-- relatório curto chamado `relatorio-ambiente.md` contendo:
-  - versões coletadas;
-  - resultados dos comandos executados;
-  - risco identificado;
-  - melhoria aplicada e justificativa;
-- evidência de que a melhoria não quebrou lint nem testes.
+- trecho de código da nova rota implementada;
+- evidência do teste manual no navegador da rota `/status`;
+- evidência de execução bem-sucedida de lint e testes.
 
 ### Critérios de sucesso
 
 Considere a prática concluída quando:
 
-- o relatório está completo e objetivo;
-- o risco técnico foi identificado com clareza;
-- a melhoria aplicada é relevante para colaboração da equipe;
-- `build`, `lint`, `test` e `test:e2e` seguem funcionando após a melhoria.
+- a rota `GET /status` responde corretamente em `http://localhost:3000/status`;
+- o formato JSON segue os campos definidos na atividade;
+- a aplicação continua iniciando sem erro;
+- `lint` e `test` passam após a alteração.
 
 ## Conexão com o próximo encontro
 
