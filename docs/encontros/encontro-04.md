@@ -361,35 +361,38 @@ passos práticos da disciplina.
 
 ### Proposta
 
-Criar um projeto chamado `api-estudo-ambiente`, validar execução da API e
-registrar um ciclo completo de qualidade com lint e testes.
+Realizar uma auditoria técnica de um projeto NestJS já criado para verificar se
+o ambiente está realmente pronto para trabalho em equipe.
 
 ### Requisitos da prática
 
-- criar o projeto com `nest new api-estudo-ambiente`;
-- iniciar em modo desenvolvimento com `npm run start:dev`;
-- alterar a mensagem retornada por `getHello()` em `app.service.ts`;
-- executar `npm run lint`;
-- executar `npm run test`;
-- executar `npm run test:e2e`.
+- usar um projeto NestJS existente da turma (ou o projeto base já criado);
+- coletar e registrar versões de `node`, `npm` e `nest`;
+- executar `npm run build`, `npm run lint`, `npm run test` e `npm run test:e2e`;
+- identificar ao menos um risco técnico real de ambiente, mesmo que pequeno
+  (ex.: ausência de arquivo `.env.example`, versão não documentada, script
+  faltando, aviso recorrente no lint);
+- propor e aplicar uma melhoria simples de padronização no projeto.
 
 ### Entrega esperada
 
 Ao final, o estudante deve apresentar:
 
-- estrutura do projeto criada corretamente;
-- mensagem personalizada retornando na rota inicial;
-- evidência de execução bem-sucedida de lint e testes;
-- breve registro textual com erros encontrados e como foram resolvidos.
+- relatório curto chamado `relatorio-ambiente.md` contendo:
+  - versões coletadas;
+  - resultados dos comandos executados;
+  - risco identificado;
+  - melhoria aplicada e justificativa;
+- evidência de que a melhoria não quebrou lint nem testes.
 
 ### Critérios de sucesso
 
 Considere a prática concluída quando:
 
-- a aplicação inicia sem falha;
-- a alteração no serviço está refletida na resposta;
-- lint não retorna erros bloqueantes;
-- testes unitários e e2e passam no ambiente local.
+- o relatório está completo e objetivo;
+- o risco técnico foi identificado com clareza;
+- a melhoria aplicada é relevante para colaboração da equipe;
+- `build`, `lint`, `test` e `test:e2e` seguem funcionando após a melhoria.
 
 ## Conexão com o próximo encontro
 
