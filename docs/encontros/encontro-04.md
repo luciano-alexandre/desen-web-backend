@@ -177,6 +177,25 @@ npm run start:dev
 Com a aplicação em execução, a API padrão responde em rota inicial. Esse passo
 valida que o projeto foi criado corretamente e que o ambiente está funcional.
 
+### Teste da rota no navegador
+
+Com o servidor ativo, abra o navegador e acesse:
+
+```text
+http://localhost:3000
+```
+
+Resultado esperado:
+
+- o navegador exibe a mensagem padrão da aplicação (ex.: `Hello World!`),
+  ou a mensagem personalizada caso você já tenha alterado `getHello()`.
+
+Se a página não abrir, verifique:
+
+- se o comando `npm run start:dev` ainda está em execução no terminal;
+- se a porta usada pela aplicação é `3000`;
+- se existe outro processo ocupando essa porta.
+
 ## Passo 5: conhecer scripts úteis do `package.json`
 
 Scripts comuns no projeto Nest recém-criado:
