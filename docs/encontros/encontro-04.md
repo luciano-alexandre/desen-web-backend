@@ -378,12 +378,87 @@ tanto manualmente quanto por teste automatizado.
 
 ### Instruções sugeridas
 
-1. No arquivo `app.controller.ts`, adicione um novo método com decorator `@Get('status')`.
-2. Faça o método retornar um objeto com os três campos solicitados.
-3. Inicie a aplicação com `npm run start:dev`.
-4. Teste no navegador acessando `http://localhost:3000/status`.
-5. Confira se a resposta aparece em JSON.
-6. Rode `npm run lint` e `npm run test` para garantir qualidade e estabilidade.
+1. Abra o arquivo `src/app.controller.ts`.
+2. Mantenha o método já existente e adicione o novo endpoint `GET /status`.
+
+Exemplo:
+
+```ts
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+
+  @Get('status')
+  getStatus() {
+    return {
+      disciplina: 'Desenvolvimento Web Backend',
+      modulo: 'Encontro 04',
+      status: 'ok',
+    };
+  }
+}
+```
+
+3. Salve o arquivo e execute a aplicação:
+
+```bash
+npm run start:dev
+```
+
+4. No navegador, acesse:
+
+```text
+http://localhost:3000/status
+```
+
+Você deve ver um JSON semelhante a:
+
+```json
+{
+  "disciplina": "Desenvolvimento Web Backend",
+  "modulo": "Encontro 04",
+  "status": "ok"
+}
+```
+
+5. Atualize um teste para validar a nova rota em `test/app.e2e-spec.ts`.
+
+Exemplo de novo bloco de teste:
+
+```ts
+it('/status (GET)', () => {
+  return request(app.getHttpServer())
+    .get('/status')
+    .expect(200)
+    .expect({
+      disciplina: 'Desenvolvimento Web Backend',
+      modulo: 'Encontro 04',
+      status: 'ok',
+    });
+});
+```
+
+6. Execute validações finais:
+
+```bash
+npm run lint
+npm run test
+npm run test:e2e
+```
+
+7. Se algum teste falhar, revise:
+
+- nome da rota (`@Get('status')`);
+- URL usada no teste (`/status`);
+- estrutura exata do objeto JSON retornado.
 
 ### Entrega esperada
 
