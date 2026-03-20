@@ -338,6 +338,40 @@ Ao final do encontro, confirme se você consegue:
 Se todos os itens estiverem válidos, o ambiente está pronto para os próximos
 passos práticos da disciplina.
 
+## Prática de laboratório
+
+### Proposta
+
+Criar um projeto chamado `api-estudo-ambiente`, validar execução da API e
+registrar um ciclo completo de qualidade com lint e testes.
+
+### Requisitos da prática
+
+- criar o projeto com `nest new api-estudo-ambiente`;
+- iniciar em modo desenvolvimento com `npm run start:dev`;
+- alterar a mensagem retornada por `getHello()` em `app.service.ts`;
+- executar `npm run lint`;
+- executar `npm run test`;
+- executar `npm run test:e2e`.
+
+### Entrega esperada
+
+Ao final, o estudante deve apresentar:
+
+- estrutura do projeto criada corretamente;
+- mensagem personalizada retornando na rota inicial;
+- evidência de execução bem-sucedida de lint e testes;
+- breve registro textual com erros encontrados e como foram resolvidos.
+
+### Critérios de sucesso
+
+Considere a prática concluída quando:
+
+- a aplicação inicia sem falha;
+- a alteração no serviço está refletida na resposta;
+- lint não retorna erros bloqueantes;
+- testes unitários e e2e passam no ambiente local.
+
 ## Conexão com o próximo encontro
 
 Com o ambiente preparado, o próximo avanço é dominar a estrutura interna do
