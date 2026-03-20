@@ -429,44 +429,12 @@ Você deve ver um JSON semelhante a:
 }
 ```
 
-5. Atualize um teste para validar a nova rota em `test/app.e2e-spec.ts`.
+### Entrega
 
-Exemplo de novo bloco de teste:
-
-```ts
-it('/status (GET)', () => {
-  return request(app.getHttpServer())
-    .get('/status')
-    .expect(200)
-    .expect({
-      disciplina: 'Desenvolvimento Web Backend',
-      modulo: 'Encontro 04',
-      status: 'ok',
-    });
-});
-```
-
-6. Execute validações finais:
-
-```bash
-npm run lint
-npm run test
-npm run test:e2e
-```
-
-7. Se algum teste falhar, revise:
-
-- nome da rota (`@Get('status')`);
-- URL usada no teste (`/status`);
-- estrutura exata do objeto JSON retornado.
-
-### Entrega esperada
-
-Ao final, o estudante deve apresentar:
+Ao final deve apresentar:
 
 - trecho de código da nova rota implementada;
-- evidência do teste manual no navegador da rota `/status`;
-- evidência de execução bem-sucedida de lint e testes.
+- evidência de execução bem-sucedida de lint.
 
 ### Critérios de sucesso
 
@@ -475,13 +443,7 @@ Considere a prática concluída quando:
 - a rota `GET /status` responde corretamente em `http://localhost:3000/status`;
 - o formato JSON segue os campos definidos na atividade;
 - a aplicação continua iniciando sem erro;
-- `lint` e `test` passam após a alteração.
-
-## Conexão com o próximo encontro
-
-Com o ambiente preparado, o próximo avanço é dominar a estrutura interna do
-NestJS na prática: módulos, controllers e services com mais profundidade,
-organizando responsabilidades para construir a primeira API da disciplina.
+- `lint` passa após a alteração.
 
 ## Síntese do encontro
 
