@@ -25,7 +25,7 @@ do curso de graduação em **Tecnologia em Sistemas para Internet (TSI)**.
 - [Visão Geral da Disciplina](docs/visao-geral-disciplina.md)
 - [Visão Geral do Professor](docs/visao-geral-professor.md)
 - [Plano de Ensino](docs/plano-de-ensino.md)
-- [Cronograma Semestral (40 encontros)](docs/cronograma-semestral.md)
+- [Cronograma Semestral](docs/cronograma-semestral.md)
 - [Ementa e Objetivos](docs/ementa-e-objetivos.md)
 - [Avaliação](docs/avaliacao.md)
 - [Projeto Final](projetos/projeto.md)

@@ -450,7 +450,7 @@ Considere a prática concluída quando:
 Você estudou que:
 
 - ambiente consistente é parte da qualidade de software;
-- Node.js, npm e Nest CLI formam a base operacional do projeto;
+- Node.js, npm e Nest CLI formam a base koperacional do projeto;
 - lint e testes devem entrar no fluxo desde o início;
 - uma base bem preparada reduz fricção e acelera evolução.
 
