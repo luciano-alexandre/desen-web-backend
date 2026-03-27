@@ -12,6 +12,122 @@ Rotas, parâmetros, query strings e verbos HTTP.
 - Capturar e tratar `@Param()` e `@Query()` em controllers.
 - Construir uma API em memória com rotas consistentes para o checkpoint **Prática 01**.
 
+## Setup inicial com Docker 
+
+Antes de iniciar os exemplos de rotas, garanta que o projeto NestJS esteja executando em container.
+
+### O que é Docker e por que usar
+
+Docker é uma plataforma que empacota a aplicação com suas dependências em **containers**, garantindo que ela rode do mesmo jeito em qualquer máquina.
+
+Neste encontro, usar Docker ajuda a:
+
+- padronizar o ambiente da turma (evitando "na minha máquina funciona");
+- reduzir problemas de versão de Node e bibliotecas;
+- facilitar subir, parar e reconstruir a API com comandos simples.
+
+### Pré-requisitos
+
+- Docker Desktop (Windows/macOS) ou Docker Engine + Docker Compose (Linux);
+- projeto NestJS já criado (ex.: `api-encontro-05`);
+- terminal na pasta raiz do projeto Nest (onde está o `package.json`).
+
+### Passo 1: criar `Dockerfile`
+
+No projeto Nest, crie o arquivo `Dockerfile`:
+
+```dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]
+```
+
+### Passo 2: criar `.dockerignore`
+
+Crie o arquivo `.dockerignore` para evitar copiar arquivos desnecessários para a imagem:
+
+```text
+node_modules
+dist
+.git
+npm-debug.log
+```
+
+### Passo 3: criar `docker-compose.yml`
+
+Na mesma pasta, crie o arquivo `docker-compose.yml`:
+
+```yaml
+services:
+  api:
+    build: .
+    container_name: nest-encontro-06
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
+```
+
+### Passo 4: subir a API
+
+Execute:
+
+```bash
+docker compose up --build
+```
+
+Se tudo estiver correto, o Nest iniciará e ficará disponível em:
+
+```text
+http://localhost:3000
+```
+
+### Passo 5: comandos úteis no dia a dia
+
+- subir em background: `docker compose up -d`;
+- acompanhar logs: `docker compose logs -f api`;
+- executar lint dentro do container: `docker compose exec api npm run lint`;
+- parar os serviços: `docker compose down`.
+
+### Passo 6: quando usar `docker compose run`
+
+O comando `docker compose run` cria um container temporário do serviço para executar uma tarefa pontual (sem precisar manter a aplicação principal rodando no terminal atual).
+
+Sintaxe base:
+
+```bash
+docker compose run --rm <servico> <comando>
+```
+
+Exemplos no projeto:
+
+```bash
+# instala dependências dentro do serviço "api"
+docker compose run --rm api npm install
+
+# executa lint em um container temporário
+docker compose run --rm api npm run lint
+
+# abre um shell dentro do serviço
+docker compose run --rm api sh
+```
+
+Regra prática:
+
+- use `run` para comandos pontuais (instalar, testar, abrir shell);
+- use `exec` quando o container já estiver em execução e você quiser executar algo nele.
+
 ## Visão geral
 
 No encontro anterior, a turma consolidou a estrutura de projeto com `module`, `controller` e `service`. Agora, o foco é evoluir essa base para o desenho de rotas HTTP com semântica correta.
