@@ -1,5 +1,7 @@
 # Encontro 06
 
+- https://github.com/luciano-alexandre/aula-backend 
+
 ## Tema
 
 Rotas, parâmetros, query strings e verbos HTTP.
