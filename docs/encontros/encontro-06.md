@@ -284,8 +284,11 @@ Escolha uma alternativa:
 
 ```bash
 npx nest g module produtos
+docker compose exec api npx nest g module produtos
 npx nest g service produtos
+docker compose exec api npx nest g service produtos
 npx nest g controller produtos
+docker compose exec api npx nest g controller produtos
 ```
 
 `npm exec`:
