@@ -261,22 +261,22 @@ export class ProdutosController {
 
 ```mermaid
 flowchart LR
-    C[Cliente HTTP] -->|GET /produtos/2?categoria=hardware| CT[ProdutosController]
-    CT -->|id=2 categoria=hardware| SV[ProdutosService]
+    C[Cliente HTTP] -->|GET /produtos?categoria=hardware| CT[ProdutosController]
+    CT -->|categoria=hardware| SV[ProdutosService]
     SV --> CT
     CT --> C
 ```
 
 Leitura do fluxo:
 
-- o cliente chama uma rota com caminho e query;
-- o controller extrai `@Param` e `@Query`;
+- o cliente chama uma rota com query string;
+- o controller extrai `@Query`;
 - o controller delega a lógica ao service;
 - a resposta retorna ao cliente em JSON.
 
-## Exemplo guiado: API de produtos em memória
+## Exemplo guiado: API de produtos em memória (evolução por passos)
 
-### Passo 1: gerar artefatos
+### Passo 0: gerar artefatos
 
 Escolha uma alternativa:
 
@@ -284,35 +284,26 @@ Escolha uma alternativa:
 
 ```bash
 npx nest g module produtos
-docker compose exec api npx nest g module produtos
 npx nest g service produtos
-docker compose exec api npx nest g service produtos
 npx nest g controller produtos
+```
+
+`docker compose exec` (com a API rodando no container):
+
+```bash
+docker compose exec api npx nest g module produtos
+docker compose exec api npx nest g service produtos
 docker compose exec api npx nest g controller produtos
 ```
 
-`npm exec`:
+### Passo 1: criar o `service` inicial (somente listagem por categoria)
 
-```bash
-npm exec -- nest g module produtos
-npm exec -- nest g service produtos
-npm exec -- nest g controller produtos
-```
-
-Explicação dos comandos do passo 1:
-
-1. `nest g module produtos` cria o módulo `produtos`, responsável por agrupar controller e service do domínio.
-2. `nest g service produtos` cria o service `produtos`, onde ficará a regra de negócio.
-3. `nest g controller produtos` cria o controller `produtos`, que recebe as requisições HTTP.
-4. As versões com `npx` e `npm exec` têm o mesmo resultado; muda apenas a forma de executar o CLI.
-5. Ao final, o NestJS registra as dependências básicas no módulo e cria a estrutura inicial da feature na pasta `src/produtos`.
-
-### Passo 2: implementar o service
+Neste primeiro momento, o método do service sempre recebe uma categoria e retorna a lista já filtrada.
 
 Arquivo `produtos.service.ts`:
 
 ```ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 type Produto = {
   id: number;
@@ -330,102 +321,20 @@ export class ProdutosService {
     { id: 3, nome: 'Curso NestJS', categoria: 'educacao', preco: 89, ativo: false },
   ];
 
-  listar(categoria?: string, limite?: number) {
-    let resultado = [...this.produtos];
-
-    if (categoria) {
-      resultado = resultado.filter((p) => p.categoria === categoria);
-    }
-
-    if (limite && limite > 0) {
-      resultado = resultado.slice(0, limite);
-    }
-
-    return resultado;
-  }
-
-  buscarPorId(id: number) {
-    const produto = this.produtos.find((p) => p.id === id);
-
-    if (!produto) {
-      throw new NotFoundException('Produto não encontrado');
-    }
-
-    return produto;
-  }
-
-  criar(dados: Omit<Produto, 'id'>) {
-    const novoId = this.produtos.length > 0
-      ? Math.max(...this.produtos.map((p) => p.id)) + 1
-      : 1;
-
-    const novoProduto: Produto = { id: novoId, ...dados };
-    this.produtos.push(novoProduto);
-
-    return novoProduto;
-  }
-
-  atualizarCompleto(id: number, dados: Omit<Produto, 'id'>) {
-    const indice = this.produtos.findIndex((p) => p.id === id);
-
-    if (indice === -1) {
-      throw new NotFoundException('Produto não encontrado');
-    }
-
-    const atualizado: Produto = { id, ...dados };
-    this.produtos[indice] = atualizado;
-    return atualizado;
-  }
-
-  atualizarParcial(id: number, dados: Partial<Omit<Produto, 'id'>>) {
-    const produto = this.buscarPorId(id);
-    const atualizado = { ...produto, ...dados };
-
-    this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
-    return atualizado;
-  }
-
-  remover(id: number) {
-    const existe = this.produtos.some((p) => p.id === id);
-
-    if (!existe) {
-      throw new NotFoundException('Produto não encontrado');
-    }
-
-    this.produtos = this.produtos.filter((p) => p.id !== id);
-    return { mensagem: `Produto ${id} removido com sucesso` };
+  listarPorCategoria(categoria: string) {
+    return this.produtos.filter((p) => p.categoria === categoria);
   }
 }
 ```
 
-Explicação do código do `service` (passo 2):
+### Passo 2: criar a primeira rota `GET /produtos?categoria=...`
 
-1. `type Produto` define o formato esperado de cada item da lista em memória.
-2. `private produtos: Produto[]` representa o "banco temporário" da aplicação para os testes do encontro.
-3. `listar(categoria?, limite?)` aplica filtros opcionais: primeiro por categoria, depois por limite de itens.
-4. `buscarPorId(id)` tenta localizar o item e lança `NotFoundException` (`404`) quando não encontra.
-5. `criar(dados)` gera um novo `id`, monta o objeto final e adiciona na lista.
-6. `atualizarCompleto(id, dados)` substitui todo o recurso mantendo o mesmo `id`, simulando semântica de `PUT`.
-7. `atualizarParcial(id, dados)` altera apenas os campos enviados, simulando semântica de `PATCH`.
-8. `remover(id)` valida existência, exclui o item e retorna mensagem de confirmação.
-
-### Passo 3: implementar o controller
+Agora o controller captura a query `categoria`, valida se foi enviada e delega para o service.
 
 Arquivo `produtos.controller.ts`:
 
 ```ts
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { ProdutosService } from './produtos.service';
 
 @Controller('produtos')
@@ -433,116 +342,205 @@ export class ProdutosController {
   constructor(private readonly produtosService: ProdutosService) {}
 
   @Get()
-  listar(
-    @Query('categoria') categoria?: string,
-    @Query('limite') limite?: string,
-  ) {
-    const limiteNumero = limite ? Number(limite) : undefined;
-
-    if (limite && Number.isNaN(limiteNumero)) {
-      throw new BadRequestException('Query "limite" deve ser numérica');
+  listar(@Query('categoria') categoria?: string) {
+    if (!categoria) {
+      throw new BadRequestException('Query "categoria" é obrigatória');
     }
 
-    return this.produtosService.listar(categoria, limiteNumero);
-  }
-
-  @Get(':id')
-  buscarPorId(@Param('id') id: string) {
-    const idNumero = Number(id);
-
-    if (Number.isNaN(idNumero)) {
-      throw new BadRequestException('Parâmetro "id" deve ser numérico');
-    }
-
-    return this.produtosService.buscarPorId(idNumero);
-  }
-
-  @Post()
-  criar(
-    @Body()
-    body: {
-      nome: string;
-      categoria: string;
-      preco: number;
-      ativo: boolean;
-    },
-  ) {
-    return this.produtosService.criar(body);
-  }
-
-  @Put(':id')
-  atualizarCompleto(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      nome: string;
-      categoria: string;
-      preco: number;
-      ativo: boolean;
-    },
-  ) {
-    const idNumero = Number(id);
-
-    if (Number.isNaN(idNumero)) {
-      throw new BadRequestException('Parâmetro "id" deve ser numérico');
-    }
-
-    return this.produtosService.atualizarCompleto(idNumero, body);
-  }
-
-  @Patch(':id')
-  atualizarParcial(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      nome?: string;
-      categoria?: string;
-      preco?: number;
-      ativo?: boolean;
-    },
-  ) {
-    const idNumero = Number(id);
-
-    if (Number.isNaN(idNumero)) {
-      throw new BadRequestException('Parâmetro "id" deve ser numérico');
-    }
-
-    return this.produtosService.atualizarParcial(idNumero, body);
-  }
-
-  @Delete(':id')
-  remover(@Param('id') id: string) {
-    const idNumero = Number(id);
-
-    if (Number.isNaN(idNumero)) {
-      throw new BadRequestException('Parâmetro "id" deve ser numérico');
-    }
-
-    return this.produtosService.remover(idNumero);
+    return this.produtosService.listarPorCategoria(categoria);
   }
 }
 ```
 
-Explicação do código do `controller` (passo 3):
+Fluxo completo desse primeiro endpoint:
 
-1. `@Controller('produtos')` define o prefixo de rota para todos os métodos da classe.
-2. O `constructor(private readonly produtosService: ProdutosService)` injeta o service via DI do NestJS.
-3. `@Get()` recebe query strings (`categoria` e `limite`), converte `limite` para número e valida formato.
-4. `@Get(':id')` captura o parâmetro de rota com `@Param`, valida se é numérico e delega ao service.
-5. `@Post()` recebe o corpo da requisição com `@Body()` para criar um novo recurso.
-6. `@Put(':id')` exige payload completo para atualização total do recurso.
-7. `@Patch(':id')` aceita payload parcial para atualização de campos específicos.
-8. `@Delete(':id')` remove o recurso pelo identificador.
-9. O uso de `BadRequestException` em entradas inválidas padroniza respostas `400` para erros de cliente.
+```mermaid
+flowchart LR
+    C[Cliente HTTP] -->|GET /produtos?categoria=hardware| CT[ProdutosController]
+    CT -->|categoria=hardware| SV[ProdutosService.listarPorCategoria]
+    SV -->|filtra lista em memória| CT
+    CT -->|JSON filtrado| C
+```
+
+Teste do passo 2:
+
+```bash
+curl "http://localhost:3000/produtos?categoria=hardware"
+```
+
+### Passo 3: adicionar `GET /produtos/:id`
+
+Após validar o primeiro fluxo, evolua para busca por identificador.
+
+No `service`, adicione:
+
+```ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+buscarPorId(id: number) {
+  const produto = this.produtos.find((p) => p.id === id);
+
+  if (!produto) {
+    throw new NotFoundException('Produto não encontrado');
+  }
+
+  return produto;
+}
+```
+
+No `controller`, adicione:
+
+```ts
+@Get(':id')
+buscarPorId(@Param('id') id: string) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parâmetro "id" deve ser numérico');
+  }
+
+  return this.produtosService.buscarPorId(idNumero);
+}
+```
+
+### Passo 4: adicionar `POST /produtos`
+
+No `service`, adicione:
+
+```ts
+criar(dados: Omit<Produto, 'id'>) {
+  const novoId = this.produtos.length > 0
+    ? Math.max(...this.produtos.map((p) => p.id)) + 1
+    : 1;
+
+  const novoProduto: Produto = { id: novoId, ...dados };
+  this.produtos.push(novoProduto);
+
+  return novoProduto;
+}
+```
+
+No `controller`, adicione:
+
+```ts
+@Post()
+criar(
+  @Body()
+  body: {
+    nome: string;
+    categoria: string;
+    preco: number;
+    ativo: boolean;
+  },
+) {
+  return this.produtosService.criar(body);
+}
+```
+
+### Passo 5: fechar CRUD com `PUT`, `PATCH` e `DELETE`
+
+No `service`, adicione os métodos:
+
+```ts
+atualizarCompleto(id: number, dados: Omit<Produto, 'id'>) {
+  const indice = this.produtos.findIndex((p) => p.id === id);
+
+  if (indice === -1) {
+    throw new NotFoundException('Produto não encontrado');
+  }
+
+  const atualizado: Produto = { id, ...dados };
+  this.produtos[indice] = atualizado;
+  return atualizado;
+}
+
+atualizarParcial(id: number, dados: Partial<Omit<Produto, 'id'>>) {
+  const produto = this.buscarPorId(id);
+  const atualizado = { ...produto, ...dados };
+
+  this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
+  return atualizado;
+}
+
+remover(id: number) {
+  const existe = this.produtos.some((p) => p.id === id);
+
+  if (!existe) {
+    throw new NotFoundException('Produto não encontrado');
+  }
+
+  this.produtos = this.produtos.filter((p) => p.id !== id);
+  return { mensagem: `Produto ${id} removido com sucesso` };
+}
+```
+
+No `controller`, adicione os métodos:
+
+```ts
+@Put(':id')
+atualizarCompleto(
+  @Param('id') id: string,
+  @Body()
+  body: {
+    nome: string;
+    categoria: string;
+    preco: number;
+    ativo: boolean;
+  },
+) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parâmetro "id" deve ser numérico');
+  }
+
+  return this.produtosService.atualizarCompleto(idNumero, body);
+}
+
+@Patch(':id')
+atualizarParcial(
+  @Param('id') id: string,
+  @Body()
+  body: {
+    nome?: string;
+    categoria?: string;
+    preco?: number;
+    ativo?: boolean;
+  },
+) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parâmetro "id" deve ser numérico');
+  }
+
+  return this.produtosService.atualizarParcial(idNumero, body);
+}
+
+@Delete(':id')
+remover(@Param('id') id: string) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parâmetro "id" deve ser numérico');
+  }
+
+  return this.produtosService.remover(idNumero);
+}
+```
 
 ## Testando endpoints no dia a dia
 
-Com a aplicação em execução (`npm run start:dev`), teste:
+Com a aplicação em execução (`npm run start:dev`), teste por etapa:
+
+- no início, apenas `GET /produtos?categoria=hardware`;
+- depois, avance para as demais rotas.
+
+Ao final de todos os passos:
 
 ```text
-GET    /produtos
+GET    /produtos?categoria=hardware
 GET    /produtos/1
-GET    /produtos?categoria=hardware&limite=1
 POST   /produtos
 PUT    /produtos/1
 PATCH  /produtos/1
@@ -560,7 +558,7 @@ curl -X POST http://localhost:3000/produtos \
 Exemplo de busca com filtro:
 
 ```bash
-curl "http://localhost:3000/produtos?categoria=hardware&limite=2"
+curl "http://localhost:3000/produtos?categoria=hardware"
 ```
 
 ## Erros comuns e como corrigir
