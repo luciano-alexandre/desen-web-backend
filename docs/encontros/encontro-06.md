@@ -257,6 +257,10 @@ export class ProdutosController {
 }
 ```
 
+Primeira aparição de `@Param` neste encontro:
+
+- `@Param('id')` captura o valor dinâmico da rota (ex.: `:id` em `/produtos/:id`) e injeta esse valor no argumento do método do controller.
+
 ## Fluxo de leitura de uma requisição com parâmetros
 
 ```mermaid
@@ -420,6 +424,10 @@ criar(dados: Omit<Produto, 'id'>) {
 }
 ```
 
+
+- `Omit<Produto, 'id'>` cria um tipo igual a `Produto`, mas removendo o campo `id` (útil porque o `id` será gerado no service).
+- `Math.max(...this.produtos.map((p) => p.id))` obtém o maior `id` já existente para gerar o próximo (`maior + 1`).
+
 No `controller`, adicione:
 
 ```ts
@@ -436,6 +444,9 @@ criar(
   return this.produtosService.criar(body);
 }
 ```
+
+
+- `@Body()` lê o corpo JSON enviado na requisição HTTP e entrega esse conteúdo no parâmetro `body`.
 
 ### Passo 5: fechar CRUD com `PUT`, `PATCH` e `DELETE`
 
