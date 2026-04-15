@@ -572,6 +572,43 @@ Exemplo de busca com filtro:
 curl "http://localhost:3000/produtos?categoria=hardware"
 ```
 
+## Utilizando Thunder Client no VS Code
+
+O **Thunder Client** é uma extensão do VS Code que funciona como cliente HTTP (semelhante ao Postman), permitindo testar APIs sem sair do editor.
+
+Ele serve para:
+
+- enviar requisições `GET`, `POST`, `PUT`, `PATCH` e `DELETE` para a API;
+- validar rapidamente parâmetros de rota, query strings e payloads;
+- configurar headers como `Content-Type: application/json`;
+- visualizar status HTTP, tempo de resposta e corpo retornado;
+- organizar testes em coleções para reaproveitar nos próximos encontros.
+
+### Como instalar
+
+1. No VS Code, abra **Extensions** (`Ctrl + Shift + X`).
+2. Busque por `Thunder Client`.
+3. Instale a extensão e abra o painel do Thunder Client na barra lateral.
+
+### Fluxo rápido de uso no encontro 06
+
+1. Clique em **New Request**.
+2. Escolha método e URL (ex.: `GET http://localhost:3000/produtos?categoria=hardware`).
+3. Para `POST` e `PUT`, em **Body > JSON**, envie os dados do produto.
+4. Clique em **Send** e observe o status HTTP e o corpo da resposta.
+5. Repita com variações de rota e query para comparar os comportamentos da API.
+
+Sugestões de teste no Thunder Client:
+
+```text
+GET    /produtos?categoria=hardware
+GET    /produtos/1
+POST   /produtos
+PUT    /produtos/1
+PATCH  /produtos/1
+DELETE /produtos/3
+```
+
 ## Erros comuns e como corrigir
 
 ### Erro: usar query para identificar recurso único
