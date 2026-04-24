@@ -2,147 +2,336 @@
 
 ## Tema
 
-Tratamento de erros, filtros e códigos de resposta.
+DTOs, pipes e validação de dados.
 
 ## Objetivos
 
-- Compreender por que tratamento de erros é parte do contrato da API.
-- Diferenciar erros de validação, recurso não encontrado, conflito e falha interna.
-- Aplicar exceções HTTP do NestJS (`BadRequestException`, `NotFoundException`, `ConflictException`, `InternalServerErrorException`).
-- Criar e registrar um filtro global de exceções para padronizar respostas de erro.
-- Usar códigos de status HTTP coerentes em respostas de sucesso e falha para o checkpoint **Prática 03**.
+- Compreender o papel de DTOs na definição de contrato de entrada da API.
+- Aplicar pipes no NestJS para transformação e validação de dados recebidos.
+- Configurar validação global com `ValidationPipe`.
+- Implementar validações de payload com `class-validator`.
+- Evoluir a API de produtos com validação robusta para o checkpoint **Prática 02**.
 
-## Setup inicial para a Prática 03
+## Setup inicial com Git e GitHub
 
-Antes de iniciar, prepare o projeto evoluído até o encontro 07.
+Antes de iniciar DTOs e validação, organize o versionamento do projeto NestJS evoluído até a correção do encontro 07.
+
+### Por que usar Git/GitHub neste ponto
+
+Agora a API começa a ter mais arquivos, regras e dependências entre camadas. Versionar o projeto ajuda a:
+
+- recuperar mudanças com segurança;
+- registrar a evolução encontro a encontro;
+- revisar correções com clareza;
+- compartilhar a implementação da prática.
 
 ### Pré-requisitos
 
-- projeto NestJS com DTOs e `ValidationPipe` já funcionando;
-- API executando localmente em `http://localhost:3000`;
-- cliente HTTP disponível (`curl`, Thunder Client, Insomnia ou Postman);
-- repositório Git configurado.
+- Git instalado na máquina;
+- conta no GitHub;
+- projeto NestJS local já funcionando (ex.: `api-encontro-07`);
+- terminal aberto na raiz do projeto.
 
-### Passo 1: atualizar branch local
+### Passo 1: configurar identidade do Git
+
+Se ainda não configurou no computador:
+
+```bash
+git config --global user.name "Seu Nome"
+git config --global user.email "seu-email@exemplo.com"
+```
+
+Validação:
+
+```bash
+git config --global --list
+```
+
+### Passo 2: inicializar repositório local
+
+Se o projeto ainda não está versionado:
+
+```bash
+git init
+git branch -M main
+```
+
+### Passo 3: revisar `.gitignore`
+
+Garanta que o projeto não versiona arquivos desnecessários:
+
+```text
+node_modules
+dist
+.env
+```
+
+### Passo 4: criar commit de base
+
+```bash
+git add .
+git commit -m "chore: base da API apos correcao da pratica 01"
+```
+
+### Passo 5: publicar no GitHub
+
+No GitHub, crie um repositório vazio e conecte o remoto:
+
+```bash
+git remote add origin https://github.com/<usuario>/<repositorio>.git
+git push -u origin main
+```
+
+### Passo 6: fluxo mínimo recomendado
 
 ```bash
 git pull
+git add .
+git commit -m "feat: adiciona dtos e validacao"
+git push
 ```
-
-### Passo 2: criar branch do encontro
-
-```bash
-git checkout -b feat/encontro-08-tratamento-erros
-```
-
-### Passo 3: subir aplicação
-
-```bash
-npm run start:dev
-```
-
-### Passo 4: validar endpoint base
-
-Teste uma rota existente (ex.: `GET /produtos`) para confirmar ambiente estável antes das mudanças.
 
 ## Visão geral
 
-No encontro 07, a turma garantiu que dados inválidos fossem bloqueados na entrada da API. Agora, o próximo passo é tornar o comportamento de erro previsível e profissional.
+Nos encontros 06 e 07, a turma estruturou rotas, parâmetros, query strings e consolidou a correção da primeira prática. Agora surge um problema central de backend real: confiar cegamente nos dados enviados pelo cliente.
 
-Em backend real, não basta "dar erro". A API precisa indicar corretamente o **tipo de problema** com código HTTP coerente e payload padronizado, para que frontend e consumidores saibam como reagir.
+Quando a entrada não é validada, a aplicação aceita tipos errados, campos faltando e informações inconsistentes. Isso torna a API difícil de testar, manter e integrar com frontend.
 
-Neste encontro, você vai estruturar tratamento de erros com exceções do NestJS, aplicar filtros globais e revisar códigos de resposta para sucesso e falha.
+Neste encontro, você vai usar DTOs para declarar o contrato de entrada e pipes para transformar e validar dados antes que eles cheguem à regra de negócio.
 
-Ao final, a expectativa é que sua API responda erros de forma consistente, legível e alinhada ao contrato HTTP.
+Ao final, a expectativa é que sua API rejeite entradas inválidas de forma previsível e padronizada.
 
 ## Pergunta central
 
-Como projetar respostas de erro em NestJS com códigos HTTP corretos e formato padronizado, sem espalhar tratamento manual por toda a aplicação?
+Como garantir, no NestJS, que `params`, `query` e `body` respeitem o contrato da API antes da execução da regra de negócio?
 
 ## Conceitos-base do encontro
 
-### O que é tratamento de erros em API
+### O que é DTO
 
-Tratar erro em API é transformar falhas esperadas do domínio em respostas HTTP claras.
+`DTO` (*Data Transfer Object*) é um objeto que define a estrutura esperada dos dados de entrada ou saída de uma operação.
 
-Exemplos de falhas comuns:
+Neste encontro, DTO será usado para:
 
-- cliente enviou dado inválido;
-- recurso solicitado não existe;
-- tentativa de criar recurso duplicado;
-- falha inesperada no processamento.
+- declarar campos obrigatórios e opcionais;
+- definir tipos esperados;
+- centralizar validações com decorators.
 
-Sem tratamento adequado, o cliente recebe respostas inconsistentes e o debug fica mais difícil.
+### O que é pipe no NestJS
 
-### Exceções HTTP no NestJS
+Pipe é um componente executado antes do método do controller para:
 
-O NestJS já oferece classes prontas para representar cenários comuns:
+- transformar dados;
+- validar dados;
+- rejeitar a requisição quando a entrada é inválida.
 
-- `BadRequestException` (`400`): entrada inválida;
-- `NotFoundException` (`404`): recurso não encontrado;
-- `ConflictException` (`409`): conflito de estado (ex.: duplicidade);
-- `InternalServerErrorException` (`500`): erro inesperado no servidor.
+Exemplos úteis:
 
-Essas exceções podem ser lançadas no `service` ou no `controller`, mas em geral a regra de domínio fica no `service`.
+- `ParseIntPipe`: converte e valida inteiro;
+- `ValidationPipe`: executa validações declaradas em DTOs;
+- `DefaultValuePipe`: define valor padrão para query opcional.
 
-### O que é Exception Filter
+## Tipagem TypeScript x validação em tempo de execução
 
-`Exception Filter` é um componente do NestJS usado para interceptar exceções e definir o formato final da resposta de erro.
+TypeScript ajuda durante desenvolvimento, mas não protege a API sozinho.
 
-Com filtro global, você padroniza todos os erros em um JSON consistente, por exemplo com:
+Exemplo:
 
-- `statusCode`;
-- `error`;
-- `message`;
-- `timestamp`;
-- `path`;
-- `method`.
+- no código, `preco: number` parece suficiente;
+- na requisição real, o cliente pode enviar `"preco": "abc"`.
 
-## Códigos HTTP mais usados neste encontro
+Sem validação em runtime, o dado inválido entra na aplicação.
 
-| Código | Uso no contexto da API |
-|---|---|
-| `200 OK` | leitura/atualização com retorno de conteúdo |
-| `201 Created` | criação bem-sucedida de recurso |
-| `204 No Content` | remoção bem-sucedida sem corpo de resposta |
-| `400 Bad Request` | erro de validação ou entrada inválida |
-| `404 Not Found` | recurso solicitado não existe |
-| `409 Conflict` | tentativa de criar/atualizar com conflito |
-| `500 Internal Server Error` | falha não tratada internamente |
+Resumo:
 
-## Fluxo de erro no NestJS
+- TypeScript protege no editor e na compilação;
+- pipes e `class-validator` protegem a entrada real da API.
+
+## Fluxo de validação de entrada
 
 ```mermaid
 flowchart LR
-    C[Cliente HTTP] --> CT[Controller]
-    CT --> SV[Service]
-    SV -->|falha de domínio| EX[HttpException]
-    EX --> FL[Exception Filter]
-    FL --> R[Resposta padronizada]
-    R --> C
+    C[Cliente HTTP] -->|POST /produtos| P[ValidationPipe]
+    P -->|payload valido| CT[ProdutosController]
+    CT --> SV[ProdutosService]
+    P -->|payload invalido| E[Resposta 400]
 ```
 
 Leitura do fluxo:
 
-- o cliente chama a rota;
-- controller delega ao service;
-- service lança exceção apropriada quando necessário;
-- filtro transforma exceção em resposta padrão;
-- cliente recebe erro com código e mensagem claros.
+- a requisição chega com `body`, `params` e `query`;
+- pipes transformam e validam os dados;
+- apenas dados válidos seguem para controller e service;
+- em caso de erro, a API responde com `400`.
 
-## Exemplo guiado: padronizando erros na API de produtos
+## Exemplo guiado: evoluindo a API de produtos
 
-### Passo 1: lançar exceções semânticas no service
+### Passo 1: instalar dependências de validação
+
+Se o projeto ainda não tiver as bibliotecas:
+
+```bash
+npm install class-validator class-transformer
+```
+
+### Passo 2: habilitar `ValidationPipe` global
+
+Arquivo `src/main.ts`:
+
+```ts
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+Pontos principais:
+
+1. `whitelist: true` remove campos não declarados.
+2. `forbidNonWhitelisted: true` transforma campos extras em erro `400`.
+3. `transform: true` permite converter tipos automaticamente.
+4. `enableImplicitConversion` ajuda em conversões simples.
+
+### Passo 3: criar DTO de criação
+
+Arquivo `src/produtos/dto/create-produto.dto.ts`:
+
+```ts
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+
+export class CreateProdutoDto {
+  @IsString()
+  @IsNotEmpty()
+  nome: string;
+
+  @IsString()
+  @IsNotEmpty()
+  categoria: string;
+
+  @IsNumber()
+  @Min(0)
+  preco: number;
+
+  @IsBoolean()
+  ativo: boolean;
+}
+```
+
+### Passo 4: criar DTO de atualização parcial
+
+Arquivo `src/produtos/dto/update-produto.dto.ts`:
+
+```ts
+import { IsBoolean, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+
+export class UpdateProdutoDto {
+  @IsOptional()
+  @IsString()
+  nome?: string;
+
+  @IsOptional()
+  @IsString()
+  categoria?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  preco?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  ativo?: boolean;
+}
+```
+
+### Passo 5: usar DTOs e pipes no controller
+
+Arquivo `src/produtos/produtos.controller.ts`:
+
+```ts
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { CreateProdutoDto } from './dto/create-produto.dto';
+import { UpdateProdutoDto } from './dto/update-produto.dto';
+import { ProdutosService } from './produtos.service';
+
+@Controller('produtos')
+export class ProdutosController {
+  constructor(private readonly produtosService: ProdutosService) {}
+
+  @Get()
+  listar(
+    @Query('categoria') categoria?: string,
+    @Query('limite', new DefaultValuePipe(10), ParseIntPipe) limite?: number,
+  ) {
+    return this.produtosService.listar(categoria, limite);
+  }
+
+  @Get(':id')
+  buscarPorId(@Param('id', ParseIntPipe) id: number) {
+    return this.produtosService.buscarPorId(id);
+  }
+
+  @Post()
+  criar(@Body() body: CreateProdutoDto) {
+    return this.produtosService.criar(body);
+  }
+
+  @Put(':id')
+  atualizarCompleto(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateProdutoDto,
+  ) {
+    return this.produtosService.atualizarCompleto(id, body);
+  }
+
+  @Patch(':id')
+  atualizarParcial(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateProdutoDto,
+  ) {
+    return this.produtosService.atualizarParcial(id, body);
+  }
+
+  @Delete(':id')
+  remover(@Param('id', ParseIntPipe) id: number) {
+    return this.produtosService.remover(id);
+  }
+}
+```
+
+### Passo 6: ajustar a assinatura do service
 
 Arquivo `src/produtos/produtos.service.ts`:
 
 ```ts
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 
@@ -180,25 +369,13 @@ export class ProdutosService {
     const produto = this.produtos.find((p) => p.id === id);
 
     if (!produto) {
-      throw new NotFoundException('Produto não encontrado');
+      throw new NotFoundException('Produto nao encontrado');
     }
 
     return produto;
   }
 
   criar(dados: CreateProdutoDto) {
-    const duplicado = this.produtos.some(
-      (p) => p.nome.toLowerCase() === dados.nome.toLowerCase(),
-    );
-
-    if (duplicado) {
-      throw new ConflictException('Já existe produto com esse nome');
-    }
-
-    if (dados.preco <= 0) {
-      throw new BadRequestException('Preço deve ser maior que zero');
-    }
-
     const novoId =
       this.produtos.length > 0
         ? Math.max(...this.produtos.map((p) => p.id)) + 1
@@ -206,344 +383,182 @@ export class ProdutosService {
 
     const novoProduto: Produto = { id: novoId, ...dados };
     this.produtos.push(novoProduto);
-
     return novoProduto;
+  }
+
+  atualizarCompleto(id: number, dados: CreateProdutoDto) {
+    const indice = this.produtos.findIndex((p) => p.id === id);
+
+    if (indice === -1) {
+      throw new NotFoundException('Produto nao encontrado');
+    }
+
+    const atualizado: Produto = { id, ...dados };
+    this.produtos[indice] = atualizado;
+    return atualizado;
   }
 
   atualizarParcial(id: number, dados: UpdateProdutoDto) {
     const produto = this.buscarPorId(id);
-
-    if (dados.preco !== undefined && dados.preco <= 0) {
-      throw new BadRequestException('Preço deve ser maior que zero');
-    }
-
     const atualizado = { ...produto, ...dados };
-    this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
 
+    this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
     return atualizado;
   }
-}
-```
 
-Pontos de atenção:
+  remover(id: number) {
+    const existe = this.produtos.some((p) => p.id === id);
 
-1. `NotFoundException` comunica ausência de recurso (`404`).
-2. `ConflictException` comunica duplicidade (`409`).
-3. `BadRequestException` comunica violação de regra de entrada (`400`).
-4. Exceção é lançada perto da regra que detecta o problema.
-
-### Passo 2: criar filtro global de exceções HTTP
-
-Arquivo `src/common/filters/http-exception.filter.ts`:
-
-```ts
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-
-    const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
-
-    let message: string | string[] = 'Erro inesperado';
-    let error = HttpStatus[status] ?? 'HttpException';
-
-    if (typeof exceptionResponse === 'string') {
-      message = exceptionResponse;
+    if (!existe) {
+      throw new NotFoundException('Produto nao encontrado');
     }
 
-    if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-      const body = exceptionResponse as {
-        message?: string | string[];
-        error?: string;
-      };
-
-      if (body.message) {
-        message = body.message;
-      }
-
-      if (body.error) {
-        error = body.error;
-      }
-    }
-
-    response.status(status).json({
-      statusCode: status,
-      error,
-      message,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
-    });
+    this.produtos = this.produtos.filter((p) => p.id !== id);
+    return { mensagem: `Produto ${id} removido com sucesso` };
   }
 }
 ```
 
-### Passo 3: registrar filtro no `main.ts`
+## Testando validação na prática
 
-Arquivo `src/main.ts`:
-
-```ts
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
-
-  app.useGlobalFilters(new HttpExceptionFilter());
-
-  await app.listen(3000);
-}
-bootstrap();
-```
-
-### Passo 4: revisar códigos de sucesso no controller
-
-Arquivo `src/produtos/produtos.controller.ts`:
-
-```ts
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
-import { ProdutosService } from './produtos.service';
-
-@Controller('produtos')
-export class ProdutosController {
-  constructor(private readonly produtosService: ProdutosService) {}
-
-  @Get()
-  listar(
-    @Query('categoria') categoria?: string,
-    @Query('limite', new DefaultValuePipe(10), ParseIntPipe) limite?: number,
-  ) {
-    return this.produtosService.listar(categoria, limite);
-  }
-
-  @Get(':id')
-  buscarPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.produtosService.buscarPorId(id);
-  }
-
-  @Post()
-  criar(@Body() body: CreateProdutoDto) {
-    return this.produtosService.criar(body);
-  }
-
-  @Patch(':id')
-  atualizarParcial(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateProdutoDto,
-  ) {
-    return this.produtosService.atualizarParcial(id, body);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  remover(@Param('id', ParseIntPipe) id: number) {
-    this.produtosService.remover(id);
-  }
-}
-```
-
-Ponto de atenção:
-
-- `@HttpCode(204)` em `DELETE` indica sucesso sem corpo, alinhado ao padrão HTTP.
-
-## Testando tratamento de erros na prática
-
-Com a aplicação em execução (`npm run start:dev`), teste os cenários:
+Com a aplicação em execução, teste:
 
 ```text
-GET     /produtos/999
-POST    /produtos (nome duplicado)
-POST    /produtos (payload inválido)
-PATCH   /produtos/1 (preco <= 0)
-DELETE  /produtos/999
+POST   /produtos
+PUT    /produtos/1
+PATCH  /produtos/1
+GET    /produtos/abc
+GET    /produtos?limite=texto
 ```
 
-Exemplo `404` (produto inexistente):
+Exemplo válido:
 
 ```bash
-curl -i http://localhost:3000/produtos/999
-```
-
-Exemplo `409` (nome duplicado):
-
-```bash
-curl -i -X POST http://localhost:3000/produtos \
+curl -X POST http://localhost:3000/produtos \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Notebook","categoria":"hardware","preco":3000,"ativo":true}'
+  -d '{"nome":"Teclado","categoria":"hardware","preco":180,"ativo":true}'
 ```
 
-Exemplo `400` (preço inválido):
+Exemplo inválido com preço negativo:
 
 ```bash
-curl -i -X PATCH http://localhost:3000/produtos/1 \
+curl -X POST http://localhost:3000/produtos \
   -H "Content-Type: application/json" \
-  -d '{"preco":0}'
+  -d '{"nome":"Teclado","categoria":"hardware","preco":-10,"ativo":true}'
 ```
 
-Resposta esperada (formato padronizado do filtro):
+Exemplo inválido com campo extra:
 
-```json
-{
-  "statusCode": 400,
-  "error": "Bad Request",
-  "message": "Preço deve ser maior que zero",
-  "timestamp": "2026-04-09T12:00:00.000Z",
-  "path": "/produtos/1",
-  "method": "PATCH"
-}
+```bash
+curl -X POST http://localhost:3000/produtos \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"Teclado","categoria":"hardware","preco":180,"ativo":true,"cor":"preto"}'
 ```
 
-## Utilizando Thunder Client para validar erros
+## Utilizando Thunder Client no VS Code
 
-No Thunder Client (VS Code), confira em cada requisição:
+O Thunder Client ajuda a validar rapidamente casos válidos e inválidos sem sair do editor.
 
-- método e URL corretos;
-- `Status` retornado (`400`, `404`, `409` etc.);
-- corpo de resposta no padrão definido pelo filtro;
-- diferença entre respostas de sucesso (`200`, `201`, `204`) e erro.
+### Fluxo rápido de uso no encontro 08
 
-Fluxo recomendado para aula:
-
-1. Criar coleção `Encontro 08 - Erros e Filtros`.
-2. Salvar requisições de sucesso e falha lado a lado.
-3. Comparar os status HTTP e discutir por que cada código foi usado.
+1. Clique em **New Request**.
+2. Escolha método e URL.
+3. Em **Body > JSON**, envie os dados do produto.
+4. Observe `status`, corpo de resposta e mensagens de validação.
+5. Salve os testes em uma coleção da aula.
 
 ## Erros comuns e como corrigir
 
-### Erro: retornar `200` mesmo quando o recurso não existe
+### Erro: confiar só na tipagem do TypeScript
 
-Sintoma: endpoint responde com objeto vazio, `null` ou mensagem genérica.
-
-Correção:
-
-- lançar `NotFoundException` quando não encontrar o recurso.
-
-### Erro: usar sempre `BadRequestException` para qualquer falha
-
-Sintoma: API perde semântica e dificulta tratamento no frontend.
+Sintoma: o código compila, mas a API aceita payload inválido.
 
 Correção:
 
-- escolher exceção específica por cenário (`404`, `409`, `400`).
+- criar DTO com decorators do `class-validator`;
+- habilitar `ValidationPipe` global.
 
-### Erro: padronizar manualmente em cada controller
+### Erro: converter `id` manualmente em todo método
 
-Sintoma: duplicação de código e respostas inconsistentes.
-
-Correção:
-
-- criar `Exception Filter` global para centralizar formato de erro.
-
-### Erro: ignorar status de sucesso corretos
-
-Sintoma: `DELETE` retorna `200` com payload arbitrário, sem necessidade.
+Sintoma: repetição de `Number(id)` e validação duplicada.
 
 Correção:
 
-- usar `@HttpCode(204)` quando a remoção não precisa devolver conteúdo.
+- usar `@Param('id', ParseIntPipe) id: number`.
+
+### Erro: aceitar campos não previstos no payload
+
+Sintoma: cliente envia propriedades extras e a API aceita silenciosamente.
+
+Correção:
+
+- configurar `whitelist: true` e `forbidNonWhitelisted: true`.
 
 ## Checklist de aprendizagem
 
 Ao final, confirme se você consegue:
 
-- explicar diferença entre erro de validação, não encontrado e conflito;
-- mapear cenários para códigos HTTP adequados;
-- lançar exceções semânticas no service;
-- criar e registrar filtro global de exceções;
-- validar respostas de erro com payload padronizado;
-- justificar quando usar `200`, `201` e `204`.
+- explicar a diferença entre tipagem estática e validação em runtime;
+- criar DTOs de criação e atualização;
+- aplicar `ValidationPipe` global no `main.ts`;
+- usar `ParseIntPipe` e `DefaultValuePipe` no controller;
+- testar cenários válidos e inválidos com respostas coerentes.
 
-## Prática de laboratório (Prática 03)
+## Prática de laboratório (Prática 02)
 
 ### Proposta
 
-Evoluir a API de `tarefas` com tratamento de erros semântico e padronizado.
+Evoluir a API de `tarefas` com DTOs e pipes para validação completa de entrada.
 
 ### Requisitos da prática
 
-- implementar exceções adequadas no `tarefas.service.ts`;
-- usar `NotFoundException` para `id` inexistente;
-- usar `BadRequestException` para transições inválidas de status;
-- usar `ConflictException` para duplicidade de título;
-- criar filtro global para padronizar resposta de erro;
-- aplicar `@HttpCode(204)` em remoção bem-sucedida;
-- testar cenários de sucesso e erro com cliente HTTP;
+- criar `CreateTarefaDto` e `UpdateTarefaDto`;
+- validar:
+  - `titulo` obrigatório e não vazio;
+  - `descricao` opcional;
+  - `status` com valores permitidos (`aberta`, `em_andamento`, `concluida`);
+  - `prioridade` entre `1` e `5`;
+- aplicar `ValidationPipe` global;
+- usar `ParseIntPipe` em `:id`;
+- manter estrutura modular (`module`, `controller`, `service`);
 - executar `npm run lint`;
-- registrar commits com mensagens semânticas (`feat`, `fix`, `refactor`).
+- registrar commits no Git com mensagens semânticas.
 
 ### Instruções sugeridas
 
-1. Revise rotas atuais de `tarefas` e liste cenários de falha esperados.
-2. Aplique exceções semânticas no service, próximas às regras de negócio.
-3. Crie filtro global em `src/common/filters`.
-4. Registre o filtro no `main.ts`.
-5. Ajuste códigos de sucesso no controller.
-6. Teste com Thunder Client ou `curl` e salve evidências.
-7. Execute lint e faça commits incrementais.
+1. Crie pasta `dto` dentro do módulo `tarefas`.
+2. Implemente os decorators de validação no DTO de criação.
+3. Crie DTO de atualização com campos opcionais.
+4. Substitua tipos inline do `@Body()` pelos DTOs.
+5. Use pipe de conversão em `@Param('id', ParseIntPipe)`.
+6. Teste erros de validação com `curl`, Insomnia ou Postman.
+7. Faça ao menos 2 commits no processo.
 
 ### Entrega
 
 Apresentar:
 
-- código de `tarefas.controller.ts` e `tarefas.service.ts`;
-- arquivo do filtro global de exceções;
-- evidência de respostas `400`, `404` e `409`;
-- evidência de remoção com `204`;
+- código de `tarefas.controller.ts`;
+- DTOs de `tarefas`;
+- evidência de resposta `400` em payload inválido;
 - evidência de execução do `lint`;
-- link do repositório GitHub com histórico dos commits.
+- link do repositório GitHub com histórico de commits.
 
 ### Critérios de sucesso
 
 Considere a prática concluída quando:
 
-- cada cenário de erro retorna status HTTP coerente;
-- payload de erro segue padrão único;
-- tratamento de erro está centralizado e sem duplicação desnecessária;
-- endpoints de sucesso usam códigos adequados ao contrato da operação.
+- entradas inválidas são bloqueadas antes do service;
+- rotas usam pipes de forma consistente;
+- DTOs refletem o contrato da API com clareza;
+- commits mostram evolução incremental e rastreável.
 
 ## Síntese do encontro
 
 Você estudou que:
 
-- tratar erro é parte do contrato da API, não detalhe de implementação;
-- exceções semânticas tornam respostas mais úteis para frontend e testes;
-- filtros globais padronizam formato de erro e reduzem repetição;
-- códigos HTTP corretos melhoram legibilidade, depuração e manutenção;
-- uma API profissional comunica sucesso e falha com consistência.
+- DTOs formalizam o contrato de entrada;
+- validação em runtime é essencial mesmo com TypeScript;
+- pipes transformam e validam dados antes da regra de negócio;
+- `ValidationPipe` global padroniza a proteção da API;
+- Git e GitHub ajudam a registrar a evolução técnica com segurança.

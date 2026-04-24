@@ -1,605 +1,806 @@
 # Encontro 07
 
+- https://github.com/luciano-alexandre/aula-backend
+
 ## Tema
 
-DTOs, pipes e validação de dados.
+Correção da Prática 01: API de tarefas com rotas, parâmetros e query strings.
 
 ## Objetivos
 
-- Compreender o papel de DTOs na definição de contrato de entrada da API.
-- Aplicar pipes no NestJS para transformação e validação de dados recebidos.
-- Configurar validação global com `ValidationPipe`.
-- Implementar validações de payload com `class-validator`.
-- Evoluir a API de produtos com validação robusta para o checkpoint **Prática 02**.
+- Revisar os critérios de correção da Prática 01.
+- Consolidar o uso de `@Controller`, `@Get`, `@Post`, `@Patch` e `@Delete`.
+- Diferenciar corretamente `:id` de filtros opcionais via query string.
+- Corrigir passo a passo a implementação da API de `tarefas`.
+- Validar a solução final com cliente HTTP e preparar a base para o encontro 08.
 
-## Setup inicial com Git e GitHub
+## Setup inicial para a correção
 
-Antes de iniciar DTOs e validação, organize o versionamento do projeto NestJS criado nos encontros anteriores.
-
-### Por que usar Git/GitHub desde agora
-
-Neste ponto da disciplina, a API começa a ganhar regras e mais arquivos. Versionar desde cedo ajuda a:
-
-- recuperar mudanças com segurança;
-- registrar evolução técnica encontro a encontro;
-- facilitar correção de erros e revisões;
-- preparar o fluxo de colaboração em equipe.
+Antes de iniciar a correção, garanta que o projeto criado a partir do encontro 06 esteja funcionando.
 
 ### Pré-requisitos
 
-- Git instalado na máquina;
-- conta no GitHub;
-- projeto NestJS local já funcionando (ex.: `api-encontro-06`);
-- terminal aberto na raiz do projeto.
+- projeto NestJS já criado e executando;
+- módulo de `tarefas` iniciado ou pronto para ser criado;
+- terminal na raiz do projeto;
+- cliente HTTP disponível (`curl`, Thunder Client, Insomnia ou Postman).
 
-### Passo 1: configurar identidade do Git
+### Passo 1: atualizar o projeto
 
-Se ainda não configurou no computador:
-
-```bash
-git config --global user.name "Seu Nome"
-git config --global user.email "seu-email@exemplo.com"
-```
-
-Validação:
-
-```bash
-git config --global --list
-```
-
-### Passo 2: inicializar repositório local
-
-Se o projeto ainda não está versionado:
-
-```bash
-git init
-git branch -M main
-```
-
-### Passo 3: revisar `.gitignore` do projeto
-
-No NestJS, o arquivo `.gitignore` normalmente já vem pronto. Garanta que inclui pelo menos:
-
-```text
-node_modules
-dist
-.env
-```
-
-Motivo: não versionar dependências compiladas nem segredos.
-
-### Passo 4: criar commit inicial
-
-```bash
-git add .
-git commit -m "chore: projeto base NestJS com rotas iniciais"
-```
-
-### Passo 5: criar repositório no GitHub
-
-No GitHub, crie um repositório vazio (sem `README` automático) com nome coerente, por exemplo:
-
-```text
-backend-nest-turma-2026
-```
-
-### Passo 6: conectar remoto e publicar
-
-No terminal local, substitua a URL abaixo pela URL do seu repositório:
-
-```bash
-git remote add origin https://github.com/<usuario>/<repositorio>.git
-git push -u origin main
-```
-
-### Passo 7: fluxo mínimo recomendado no dia a dia
-
-Para cada evolução do encontro:
+Se estiver usando Git:
 
 ```bash
 git pull
-git add .
-git commit -m "feat: adiciona DTOs e validação de produtos"
-git push
 ```
 
-Boa prática de mensagens:
+### Passo 2: subir a aplicação
 
-- `feat:` para nova funcionalidade;
-- `fix:` para correção;
-- `chore:` para ajustes de infraestrutura/configuração.
+Escolha a alternativa compatível com o seu projeto:
+
+```bash
+npm run start:dev
+```
+
+ou, se estiver usando Docker:
+
+```bash
+docker compose up
+```
+
+### Passo 3: validar o ambiente
+
+Confirme que a API responde em:
+
+```text
+http://localhost:3000
+```
 
 ## Visão geral
 
-No encontro 06, a turma estruturou rotas, parâmetros e verbos HTTP. Agora vamos tratar um problema crítico de backend real: **confiar cegamente nos dados vindos do cliente**.
+No encontro 06, a turma construiu a primeira prática com foco em rotas, parâmetros de rota, query strings e verbos HTTP.
 
-Quando uma API recebe entrada sem validação, surgem erros difíceis de rastrear: tipos incorretos, campos obrigatórios ausentes e inconsistência de dados.
+Neste encontro, o foco não é apresentar conteúdo totalmente novo, mas revisar a prática com olhar técnico: onde o contrato HTTP ficou coerente, onde houve confusão entre caminho e filtro, onde o controller recebeu responsabilidades demais e como organizar a solução de forma mais estável.
 
-Neste encontro, você vai usar DTOs para declarar o contrato de entrada e pipes para validar/transformar valores antes de chegar à regra de negócio.
-
-Ao final, a expectativa é que sua API rejeite entradas inválidas de forma previsível, com mensagens claras e comportamento padronizado.
+Ao final, a expectativa é que você consiga comparar sua implementação com uma solução de referência e justificar cada rota da API de `tarefas`.
 
 ## Pergunta central
 
-Como garantir, no NestJS, que os dados recebidos em params, query e body respeitem o contrato da API antes de executar a regra de negócio?
+Como corrigir a Prática 01 de modo que a API de `tarefas` use rotas claras, filtros opcionais e semântica HTTP consistente?
 
-## Conceitos-base do encontro
+## Critérios usados na correção
 
-### O que é DTO
+Durante a correção, vamos adotar as seguintes decisões:
 
-`DTO` (*Data Transfer Object*) é um objeto que define a estrutura esperada dos dados de entrada (ou saída) em uma operação.
+- `GET /tarefas` lista recursos;
+- `GET /tarefas/:id` busca um recurso específico;
+- `status` e `prioridade` são filtros opcionais, então ficam na query string;
+- `POST /tarefas` cria nova tarefa;
+- `PATCH /tarefas/:id` altera parcialmente uma tarefa;
+- `DELETE /tarefas/:id` remove uma tarefa;
+- o controller cuida do contrato HTTP;
+- o service concentra os dados em memória e a regra principal.
 
-No contexto deste encontro, DTO será usado para:
+## Estrutura esperada da tarefa
 
-- declarar campos obrigatórios e opcionais;
-- definir tipos esperados;
-- aplicar validações com decorators.
+Para a correção, vamos trabalhar com este formato de dados:
 
-### O que é pipe no NestJS
+```ts
+type Tarefa = {
+  id: number;
+  titulo: string;
+  descricao: string;
+  status: 'aberta' | 'em_andamento' | 'concluida';
+  prioridade: 'baixa' | 'media' | 'alta';
+};
+```
 
-Pipe é uma classe que roda antes do método do controller para:
-
-- transformar dados (ex.: string para número);
-- validar dados (ex.: verificar formato, faixa de valor);
-- rejeitar requisição inválida com erro adequado.
-
-Exemplos comuns:
-
-- `ParseIntPipe`: converte e valida número inteiro em parâmetros;
-- `ValidationPipe`: executa validação de DTO usando `class-validator`;
-- `DefaultValuePipe`: define valor padrão quando query não é enviada.
-
-## Tipagem TypeScript x validação em tempo de execução
-
-Tipagem do TypeScript ajuda durante desenvolvimento, mas não protege a API sozinha em produção.
-
-Exemplo:
-
-- no código, `preco: number` parece correto;
-- na requisição HTTP, o cliente pode enviar `"preco": "abc"`.
-
-Sem validação em runtime, o dado inválido entra na aplicação.
-
-Resumo:
-
-- TypeScript: segurança no editor/compilação;
-- pipes + `class-validator`: segurança na entrada real da API.
-
-## Fluxo de validação de entrada no NestJS
+## Fluxo da solução corrigida
 
 ```mermaid
 flowchart LR
-    C[Cliente HTTP] -->|POST /produtos| P[ValidationPipe]
-    P -->|payload válido| CT[ProdutosController]
-    CT --> SV[ProdutosService]
-    P -->|payload inválido| E[Resposta 400]
+    C[Cliente HTTP] --> CT[TarefasController]
+    CT --> SV[TarefasService]
+    SV --> CT
+    CT --> C
 ```
 
 Leitura do fluxo:
 
-- a requisição chega com `body`, `params` e `query`;
-- pipes transformam/validam os dados;
-- apenas dados válidos seguem para controller e service;
-- em caso de erro, a API devolve `400` com detalhes.
+- o cliente chama a rota correta para a intenção desejada;
+- o controller interpreta `params`, `query` e `body`;
+- o service manipula a lista em memória;
+- a resposta retorna em JSON com comportamento previsível.
 
-## Exemplo: evoluindo a API de produtos
+## Correção passo a passo da Prática 01
 
-### Passo 1: instalar dependências de validação 
+### Passo 0: gerar os artefatos do módulo
 
-Em muitos projetos NestJS elas já vêm instaladas. Se não estiverem:
+Se ainda não criou o módulo de `tarefas`, gere os arquivos:
 
 ```bash
-npm install class-validator class-transformer
+npx nest g module tarefas
+npx nest g service tarefas
+npx nest g controller tarefas
 ```
 
-### Passo 2: habilitar `ValidationPipe` global
+Se estiver usando container com a API em execução:
 
-Arquivo `src/main.ts`:
-
-```ts
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
-
-  await app.listen(3000);
-}
-bootstrap();
+```bash
+docker compose exec api npx nest g module tarefas
+docker compose exec api npx nest g service tarefas
+docker compose exec api npx nest g controller tarefas
 ```
 
-Explicação dos pontos principais:
+### Passo 1: criar a base do `service`
 
-1. `whitelist: true` remove campos não declarados no DTO.
-2. `forbidNonWhitelisted: true` transforma campos extras em erro `400`.
-3. `transform: true` permite converter tipos automaticamente.
-4. `enableImplicitConversion` ajuda em conversões de tipos simples.
+Comece organizando os dados em memória no `service`.
 
-### Passo 3: criar DTO de criação
-
-Arquivo `src/produtos/dto/create-produto.dto.ts`:
-
-```ts
-import { IsBoolean, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
-
-export class CreateProdutoDto {
-  @IsString()
-  @IsNotEmpty()
-  nome: string;
-
-  @IsString()
-  @IsNotEmpty()
-  categoria: string;
-
-  @IsNumber()
-  @Min(0)
-  preco: number;
-
-  @IsBoolean()
-  ativo: boolean;
-}
-```
-
-### Passo 4: criar DTO de atualização parcial
-
-Arquivo `src/produtos/dto/update-produto.dto.ts`:
-
-```ts
-import { IsBoolean, IsNumber, IsOptional, IsString, Min } from 'class-validator';
-
-export class UpdateProdutoDto {
-  @IsOptional()
-  @IsString()
-  nome?: string;
-
-  @IsOptional()
-  @IsString()
-  categoria?: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  preco?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  ativo?: boolean;
-}
-```
-
-### Passo 5: usar DTOs e pipes no controller
-
-Arquivo `src/produtos/produtos.controller.ts`:
-
-```ts
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
-import { ProdutosService } from './produtos.service';
-
-@Controller('produtos')
-export class ProdutosController {
-  constructor(private readonly produtosService: ProdutosService) {}
-
-  @Get()
-  listar(
-    @Query('categoria') categoria?: string,
-    @Query('limite', new DefaultValuePipe(10), ParseIntPipe) limite?: number,
-  ) {
-    return this.produtosService.listar(categoria, limite);
-  }
-
-  @Get(':id')
-  buscarPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.produtosService.buscarPorId(id);
-  }
-
-  @Post()
-  criar(@Body() body: CreateProdutoDto) {
-    return this.produtosService.criar(body);
-  }
-
-  @Put(':id')
-  atualizarCompleto(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: CreateProdutoDto,
-  ) {
-    return this.produtosService.atualizarCompleto(id, body);
-  }
-
-  @Patch(':id')
-  atualizarParcial(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateProdutoDto,
-  ) {
-    return this.produtosService.atualizarParcial(id, body);
-  }
-
-  @Delete(':id')
-  remover(@Param('id', ParseIntPipe) id: number) {
-    return this.produtosService.remover(id);
-  }
-}
-```
-
-Explicação do controller com validação:
-
-1. `@Body() body: CreateProdutoDto` aplica validações declaradas no DTO.
-2. `ParseIntPipe` elimina necessidade de converter `id` manualmente.
-3. `DefaultValuePipe(10)` define limite padrão para listagem.
-4. `UpdateProdutoDto` permite `PATCH` com campos opcionais.
-5. O controller fica focado em contrato HTTP, delegando regra ao service.
-
-### Passo 6: ajustar assinatura do service 
-
-Arquivo `src/produtos/produtos.service.ts`:
+Arquivo `src/tarefas/tarefas.service.ts`:
 
 ```ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
 
-type Produto = {
+type Tarefa = {
   id: number;
-  nome: string;
-  categoria: string;
-  preco: number;
-  ativo: boolean;
+  titulo: string;
+  descricao: string;
+  status: 'aberta' | 'em_andamento' | 'concluida';
+  prioridade: 'baixa' | 'media' | 'alta';
 };
 
 @Injectable()
-export class ProdutosService {
-  private produtos: Produto[] = [
-    { id: 1, nome: 'Notebook', categoria: 'hardware', preco: 3500, ativo: true },
-    { id: 2, nome: 'Mouse', categoria: 'hardware', preco: 120, ativo: true },
-    { id: 3, nome: 'Curso NestJS', categoria: 'educacao', preco: 89, ativo: false },
+export class TarefasService {
+  private tarefas: Tarefa[] = [
+    {
+      id: 1,
+      titulo: 'Configurar projeto',
+      descricao: 'Instalar dependencias e validar o NestJS',
+      status: 'concluida',
+      prioridade: 'alta',
+    },
+    {
+      id: 2,
+      titulo: 'Criar modulo tarefas',
+      descricao: 'Gerar module, controller e service',
+      status: 'em_andamento',
+      prioridade: 'alta',
+    },
+    {
+      id: 3,
+      titulo: 'Implementar listagem',
+      descricao: 'Criar rota GET /tarefas',
+      status: 'aberta',
+      prioridade: 'media',
+    },
+    {
+      id: 4,
+      titulo: 'Testar no Thunder Client',
+      descricao: 'Salvar requests da pratica',
+      status: 'aberta',
+      prioridade: 'baixa',
+    },
   ];
 
-  listar(categoria?: string, limite?: number) {
-    let resultado = [...this.produtos];
+  listar(status?: string, prioridade?: string) {
+    let resultado = [...this.tarefas];
 
-    if (categoria) {
-      resultado = resultado.filter((p) => p.categoria === categoria);
+    if (status) {
+      resultado = resultado.filter((t) => t.status === status);
     }
 
-    if (limite && limite > 0) {
-      resultado = resultado.slice(0, limite);
+    if (prioridade) {
+      resultado = resultado.filter((t) => t.prioridade === prioridade);
     }
 
     return resultado;
   }
 
   buscarPorId(id: number) {
-    const produto = this.produtos.find((p) => p.id === id);
+    const tarefa = this.tarefas.find((item) => item.id === id);
 
-    if (!produto) {
-      throw new NotFoundException('Produto não encontrado');
+    if (!tarefa) {
+      throw new NotFoundException('Tarefa nao encontrada');
     }
 
-    return produto;
-  }
-
-  criar(dados: CreateProdutoDto) {
-    const novoId = this.produtos.length > 0
-      ? Math.max(...this.produtos.map((p) => p.id)) + 1
-      : 1;
-
-    const novoProduto: Produto = { id: novoId, ...dados };
-    this.produtos.push(novoProduto);
-    return novoProduto;
-  }
-
-  atualizarCompleto(id: number, dados: CreateProdutoDto) {
-    const indice = this.produtos.findIndex((p) => p.id === id);
-
-    if (indice === -1) {
-      throw new NotFoundException('Produto não encontrado');
-    }
-
-    const atualizado: Produto = { id, ...dados };
-    this.produtos[indice] = atualizado;
-    return atualizado;
-  }
-
-  atualizarParcial(id: number, dados: UpdateProdutoDto) {
-    const produto = this.buscarPorId(id);
-    const atualizado = { ...produto, ...dados };
-
-    this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
-    return atualizado;
-  }
-
-  remover(id: number) {
-    const existe = this.produtos.some((p) => p.id === id);
-
-    if (!existe) {
-      throw new NotFoundException('Produto não encontrado');
-    }
-
-    this.produtos = this.produtos.filter((p) => p.id !== id);
-    return { mensagem: `Produto ${id} removido com sucesso` };
+    return tarefa;
   }
 }
 ```
 
-## Testando validação na prática
+Por que começar pelo `service`:
 
-Com a aplicação em execução (`npm run start:dev`), teste:
+- a prática pede lista em memória;
+- o controller fica mais simples quando já existe uma camada de dados;
+- filtrar e buscar por `id` são responsabilidades naturais do `service`.
+
+### Passo 2: corrigir a listagem com filtros opcionais
+
+Um erro comum na prática foi tratar `status` e `prioridade` como parte obrigatória da rota. A forma correta aqui é:
 
 ```text
-POST   /produtos
-PUT    /produtos/1
-PATCH  /produtos/1
-GET    /produtos/abc
-GET    /produtos?limite=texto
+GET /tarefas?status=aberta&prioridade=alta
+```
+
+Isso acontece porque `status` e `prioridade` refinam a listagem, mas não identificam uma tarefa específica.
+
+Arquivo `src/tarefas/tarefas.controller.ts`:
+
+```ts
+import { Controller, Get, Query } from '@nestjs/common';
+import { TarefasService } from './tarefas.service';
+
+@Controller('tarefas')
+export class TarefasController {
+  constructor(private readonly tarefasService: TarefasService) {}
+
+  @Get()
+  listar(
+    @Query('status') status?: string,
+    @Query('prioridade') prioridade?: string,
+  ) {
+    return this.tarefasService.listar(status, prioridade);
+  }
+}
+```
+
+Teste esperado:
+
+```bash
+curl "http://localhost:3000/tarefas"
+curl "http://localhost:3000/tarefas?status=aberta"
+curl "http://localhost:3000/tarefas?status=aberta&prioridade=media"
+```
+
+### Passo 3: implementar `GET /tarefas/:id`
+
+Agora entra o caso de recurso único. Aqui sim usamos parâmetro de rota.
+
+No controller, adicione:
+
+```ts
+import { BadRequestException, Controller, Get, Param, Query } from '@nestjs/common';
+
+@Get(':id')
+buscarPorId(@Param('id') id: string) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parametro "id" deve ser numerico');
+  }
+
+  return this.tarefasService.buscarPorId(idNumero);
+}
+```
+
+O que esta etapa corrige:
+
+- evita rota inadequada como `GET /tarefas?id=3` para recurso único;
+- valida conversão numérica de `id`;
+- mantém a busca da tarefa no `service`.
+
+Teste esperado:
+
+```bash
+curl http://localhost:3000/tarefas/2
+curl http://localhost:3000/tarefas/abc
+curl http://localhost:3000/tarefas/999
+```
+
+Resultados esperados:
+
+- `2` retorna a tarefa correspondente;
+- `abc` retorna erro `400`;
+- `999` retorna erro `404`.
+
+### Passo 4: implementar `POST /tarefas`
+
+Na prática, muitos envios funcionaram sem critério mínimo para o corpo da requisição. Neste encontro, como ainda não estamos em DTOs, vamos fazer uma validação manual simples.
+
+No `service`, adicione:
+
+```ts
+criar(dados: Omit<Tarefa, 'id'>) {
+  const novoId =
+    this.tarefas.length > 0
+      ? Math.max(...this.tarefas.map((item) => item.id)) + 1
+      : 1;
+
+  const novaTarefa: Tarefa = { id: novoId, ...dados };
+  this.tarefas.push(novaTarefa);
+
+  return novaTarefa;
+}
+```
+
+No controller, adicione:
+
+```ts
+import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+
+@Post()
+criar(
+  @Body()
+  body: {
+    titulo: string;
+    descricao: string;
+    status: 'aberta' | 'em_andamento' | 'concluida';
+    prioridade: 'baixa' | 'media' | 'alta';
+  },
+) {
+  if (!body.titulo || !body.descricao || !body.status || !body.prioridade) {
+    throw new BadRequestException('Campos obrigatorios: titulo, descricao, status e prioridade');
+  }
+
+  return this.tarefasService.criar(body);
+}
+```
+
+Teste esperado:
+
+```bash
+curl -X POST http://localhost:3000/tarefas \
+  -H "Content-Type: application/json" \
+  -d '{"titulo":"Documentar API","descricao":"Escrever exemplos de uso","status":"aberta","prioridade":"alta"}'
+```
+
+### Passo 5: implementar `PATCH /tarefas/:id`
+
+Aqui a ideia é atualizar parcialmente a tarefa, sem obrigar envio do objeto completo.
+
+No `service`, adicione:
+
+```ts
+atualizarParcial(id: number, dados: Partial<Omit<Tarefa, 'id'>>) {
+  const tarefa = this.buscarPorId(id);
+  const tarefaAtualizada = { ...tarefa, ...dados };
+
+  this.tarefas = this.tarefas.map((item) =>
+    item.id === id ? tarefaAtualizada : item,
+  );
+
+  return tarefaAtualizada;
+}
+```
+
+No controller, adicione:
+
+```ts
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+
+@Patch(':id')
+atualizarParcial(
+  @Param('id') id: string,
+  @Body()
+  body: {
+    titulo?: string;
+    descricao?: string;
+    status?: 'aberta' | 'em_andamento' | 'concluida';
+    prioridade?: 'baixa' | 'media' | 'alta';
+  },
+) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parametro "id" deve ser numerico');
+  }
+
+  if (Object.keys(body).length === 0) {
+    throw new BadRequestException('Envie ao menos um campo para atualizacao');
+  }
+
+  return this.tarefasService.atualizarParcial(idNumero, body);
+}
+```
+
+Teste esperado:
+
+```bash
+curl -X PATCH http://localhost:3000/tarefas/3 \
+  -H "Content-Type: application/json" \
+  -d '{"status":"em_andamento","prioridade":"alta"}'
+```
+
+### Passo 6: implementar `DELETE /tarefas/:id`
+
+No `service`, adicione:
+
+```ts
+remover(id: number) {
+  const tarefa = this.buscarPorId(id);
+
+  this.tarefas = this.tarefas.filter((item) => item.id !== id);
+
+  return {
+    mensagem: `Tarefa ${tarefa.id} removida com sucesso`,
+  };
+}
+```
+
+No controller, adicione:
+
+```ts
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+
+@Delete(':id')
+remover(@Param('id') id: string) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parametro "id" deve ser numerico');
+  }
+
+  return this.tarefasService.remover(idNumero);
+}
+```
+
+Teste esperado:
+
+```bash
+curl -X DELETE http://localhost:3000/tarefas/4
+```
+
+## Solução final esperada
+
+### `tarefas.service.ts`
+
+```ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+type Tarefa = {
+  id: number;
+  titulo: string;
+  descricao: string;
+  status: 'aberta' | 'em_andamento' | 'concluida';
+  prioridade: 'baixa' | 'media' | 'alta';
+};
+
+@Injectable()
+export class TarefasService {
+  private tarefas: Tarefa[] = [
+    {
+      id: 1,
+      titulo: 'Configurar projeto',
+      descricao: 'Instalar dependencias e validar o NestJS',
+      status: 'concluida',
+      prioridade: 'alta',
+    },
+    {
+      id: 2,
+      titulo: 'Criar modulo tarefas',
+      descricao: 'Gerar module, controller e service',
+      status: 'em_andamento',
+      prioridade: 'alta',
+    },
+    {
+      id: 3,
+      titulo: 'Implementar listagem',
+      descricao: 'Criar rota GET /tarefas',
+      status: 'aberta',
+      prioridade: 'media',
+    },
+    {
+      id: 4,
+      titulo: 'Testar no Thunder Client',
+      descricao: 'Salvar requests da pratica',
+      status: 'aberta',
+      prioridade: 'baixa',
+    },
+  ];
+
+  listar(status?: string, prioridade?: string) {
+    let resultado = [...this.tarefas];
+
+    if (status) {
+      resultado = resultado.filter((t) => t.status === status);
+    }
+
+    if (prioridade) {
+      resultado = resultado.filter((t) => t.prioridade === prioridade);
+    }
+
+    return resultado;
+  }
+
+  buscarPorId(id: number) {
+    const tarefa = this.tarefas.find((item) => item.id === id);
+
+    if (!tarefa) {
+      throw new NotFoundException('Tarefa nao encontrada');
+    }
+
+    return tarefa;
+  }
+
+  criar(dados: Omit<Tarefa, 'id'>) {
+    const novoId =
+      this.tarefas.length > 0
+        ? Math.max(...this.tarefas.map((item) => item.id)) + 1
+        : 1;
+
+    const novaTarefa: Tarefa = { id: novoId, ...dados };
+    this.tarefas.push(novaTarefa);
+
+    return novaTarefa;
+  }
+
+  atualizarParcial(id: number, dados: Partial<Omit<Tarefa, 'id'>>) {
+    const tarefa = this.buscarPorId(id);
+    const tarefaAtualizada = { ...tarefa, ...dados };
+
+    this.tarefas = this.tarefas.map((item) =>
+      item.id === id ? tarefaAtualizada : item,
+    );
+
+    return tarefaAtualizada;
+  }
+
+  remover(id: number) {
+    const tarefa = this.buscarPorId(id);
+
+    this.tarefas = this.tarefas.filter((item) => item.id !== id);
+
+    return {
+      mensagem: `Tarefa ${tarefa.id} removida com sucesso`,
+    };
+  }
+}
+```
+
+### `tarefas.controller.ts`
+
+```ts
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { TarefasService } from './tarefas.service';
+
+type StatusTarefa = 'aberta' | 'em_andamento' | 'concluida';
+type PrioridadeTarefa = 'baixa' | 'media' | 'alta';
+
+@Controller('tarefas')
+export class TarefasController {
+  constructor(private readonly tarefasService: TarefasService) {}
+
+  @Get()
+  listar(
+    @Query('status') status?: string,
+    @Query('prioridade') prioridade?: string,
+  ) {
+    return this.tarefasService.listar(status, prioridade);
+  }
+
+  @Get(':id')
+  buscarPorId(@Param('id') id: string) {
+    const idNumero = this.converterId(id);
+    return this.tarefasService.buscarPorId(idNumero);
+  }
+
+  @Post()
+  criar(
+    @Body()
+    body: {
+      titulo: string;
+      descricao: string;
+      status: StatusTarefa;
+      prioridade: PrioridadeTarefa;
+    },
+  ) {
+    if (!body.titulo || !body.descricao || !body.status || !body.prioridade) {
+      throw new BadRequestException(
+        'Campos obrigatorios: titulo, descricao, status e prioridade',
+      );
+    }
+
+    return this.tarefasService.criar(body);
+  }
+
+  @Patch(':id')
+  atualizarParcial(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      titulo?: string;
+      descricao?: string;
+      status?: StatusTarefa;
+      prioridade?: PrioridadeTarefa;
+    },
+  ) {
+    const idNumero = this.converterId(id);
+
+    if (Object.keys(body).length === 0) {
+      throw new BadRequestException('Envie ao menos um campo para atualizacao');
+    }
+
+    return this.tarefasService.atualizarParcial(idNumero, body);
+  }
+
+  @Delete(':id')
+  remover(@Param('id') id: string) {
+    const idNumero = this.converterId(id);
+    return this.tarefasService.remover(idNumero);
+  }
+
+  private converterId(id: string) {
+    const idNumero = Number(id);
+
+    if (Number.isNaN(idNumero)) {
+      throw new BadRequestException('Parametro "id" deve ser numerico');
+    }
+
+    return idNumero;
+  }
+}
+```
+
+## Testando a correção na prática
+
+Com a aplicação em execução, revise estes cenários:
+
+```text
+GET     /tarefas
+GET     /tarefas?status=aberta
+GET     /tarefas?status=aberta&prioridade=alta
+GET     /tarefas/2
+POST    /tarefas
+PATCH   /tarefas/3
+DELETE  /tarefas/4
+```
+
+Exemplo de criação:
+
+```bash
+curl -X POST http://localhost:3000/tarefas \
+  -H "Content-Type: application/json" \
+  -d '{"titulo":"Preparar entrega","descricao":"Organizar evidencias da pratica","status":"aberta","prioridade":"alta"}'
+```
+
+Exemplo de atualização parcial:
+
+```bash
+curl -X PATCH http://localhost:3000/tarefas/2 \
+  -H "Content-Type: application/json" \
+  -d '{"status":"concluida"}'
+```
+
+Exemplo de filtro:
+
+```bash
+curl "http://localhost:3000/tarefas?prioridade=alta"
 ```
 
 ## Utilizando Thunder Client no VS Code
 
-O **Thunder Client** é uma extensão do VS Code que funciona como cliente HTTP (semelhante ao Postman), permitindo testar APIs sem sair do editor.
+O Thunder Client continua sendo uma boa opção para revisar a prática sem sair do editor.
 
-Ele serve para:
+Fluxo sugerido:
 
-- enviar requisições `GET`, `POST`, `PUT`, `PATCH` e `DELETE` para a API;
-- validar rapidamente payloads válidos e inválidos;
-- configurar headers como `Content-Type: application/json`;
-- visualizar status HTTP, tempo de resposta e corpo retornado;
-- organizar testes em coleções para reaproveitar nos próximos encontros.
+1. Criar uma coleção chamada `Encontro 07 - Correcao Pratica 01`.
+2. Salvar uma requisição para cada rota da prática.
+3. Testar um caso válido e um caso inválido para `GET /tarefas/:id`.
+4. Comparar diferenças entre query string e parâmetro de rota.
 
-### Como instalar
+## Erros comuns observados na prática
 
-1. No VS Code, abra **Extensions** (`Ctrl + Shift + X`).
-2. Busque por `Thunder Client`.
-3. Instale a extensão e abra o painel do Thunder Client na barra lateral.
+### Erro: usar rota para aquilo que deveria ser filtro
 
-### Fluxo rápido de uso no encontro 07
+Exemplo inadequado:
 
-1. Clique em **New Request**.
-2. Escolha método e URL (ex.: `POST http://localhost:3000/produtos`).
-3. Em **Body > JSON**, envie os dados do produto.
-4. Clique em **Send** e observe a resposta.
-5. Repita com casos inválidos para confirmar os erros `400` da validação.
-
-Exemplo válido:
-
-```bash
-curl -X POST http://localhost:3000/produtos \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teclado","categoria":"hardware","preco":180,"ativo":true}'
+```text
+GET /tarefas/aberta/alta
 ```
 
-Exemplo inválido (preço negativo):
+Prefira:
 
-```bash
-curl -X POST http://localhost:3000/produtos \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teclado","categoria":"hardware","preco":-10,"ativo":true}'
+```text
+GET /tarefas?status=aberta&prioridade=alta
 ```
 
-Exemplo inválido (campo extra não permitido):
+Motivo: `status` e `prioridade` refinam listagem; não identificam recurso único.
 
-```bash
-curl -X POST http://localhost:3000/produtos \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teclado","categoria":"hardware","preco":180,"ativo":true,"cor":"preto"}'
+### Erro: buscar recurso único via query string
+
+Exemplo inadequado:
+
+```text
+GET /tarefas?id=3
 ```
 
-Com `forbidNonWhitelisted`, a API deve responder `400`.
+Prefira:
 
-## Erros comuns e como corrigir
+```text
+GET /tarefas/3
+```
 
-### Erro: confiar só na tipagem do TypeScript
+Motivo: o `id` identifica uma tarefa específica, então deve ficar no caminho.
 
-Sintoma: código compila, mas a API aceita payload inválido.
+### Erro: não validar `id` numérico
+
+Sintoma: `GET /tarefas/abc` quebra a lógica ou retorna resposta incoerente.
 
 Correção:
 
-- criar DTO com decorators do `class-validator`;
-- habilitar `ValidationPipe` global.
+- converter com `Number(id)`;
+- validar com `Number.isNaN(...)`;
+- responder erro `400` em caso inválido.
 
-### Erro: converter `id` manualmente em todo método
+### Erro: usar `POST` para atualização
 
-Sintoma: repetição de `Number(id)` e validação duplicada.
+Exemplo inadequado:
 
-Correção:
+```text
+POST /tarefas/3
+```
 
-- usar `@Param('id', ParseIntPipe) id: number`.
+Prefira:
 
-### Erro: aceitar campos não previstos no payload
+```text
+PATCH /tarefas/3
+```
 
-Sintoma: cliente envia propriedades extras e a API aceita silenciosamente.
-
-Correção:
-
-- configurar `whitelist: true` e `forbidNonWhitelisted: true` no `ValidationPipe`.
+Motivo: atualização parcial deve refletir a intenção do contrato HTTP.
 
 ## Checklist de aprendizagem
 
 Ao final, confirme se você consegue:
 
-- explicar a diferença entre tipagem estática e validação em runtime;
-- criar DTOs de criação e atualização;
-- aplicar `ValidationPipe` global no `main.ts`;
-- usar `ParseIntPipe` e `DefaultValuePipe` no controller;
-- testar cenários válidos e inválidos com respostas coerentes.
+- distinguir recurso único de filtro opcional;
+- implementar `GET`, `POST`, `PATCH` e `DELETE` com semântica correta;
+- validar `id` numérico no controller;
+- manter os dados e a lógica principal no service;
+- testar a API com casos válidos e inválidos.
 
-## Prática de laboratório (Prática 02)
+## Encaminhamento após a correção
 
-### Proposta
+Antes do encontro 08, ajuste sua própria solução:
 
-Evoluir a API de `tarefas` com DTOs e pipes para validação completa de entrada.
+- compare sua versão com a correção guiada;
+- corrija rotas incoerentes;
+- revise nomes de propriedades da tarefa;
+- execute `npm run lint`;
+- faça um commit de correção, por exemplo:
 
-### Requisitos da prática
-
-- criar `CreateTarefaDto` e `UpdateTarefaDto`;
-- validar:
-  - `titulo` obrigatório e não vazio;
-  - `descricao` opcional;
-  - `status` com valores permitidos (`aberta`, `em_andamento`, `concluida`);
-  - `prioridade` entre `1` e `5`;
-- aplicar `ValidationPipe` global;
-- usar `ParseIntPipe` em `:id`;
-- manter estrutura modular (`module`, `controller`, `service`);
-- executar `npm run lint`;
-- registrar commits no Git com mensagens semânticas.
-
-### Instruções sugeridas
-
-1. Crie pasta `dto` dentro do módulo `tarefas`.
-2. Implemente os decorators de validação no DTO de criação.
-3. Crie DTO de atualização com campos opcionais.
-4. Substitua tipos inline do `@Body()` pelos DTOs.
-5. Use pipe de conversão em `@Param('id', ParseIntPipe)`.
-6. Teste erros de validação com `curl`, Insomnia ou Postman.
-7. Faça ao menos 2 commits no processo (`feat` e `fix` ou `refactor`).
-
-### Entrega
-
-Apresentar:
-
-- código de `tarefas.controller.ts`;
-- DTOs de `tarefas`;
-- evidência de resposta `400` em payload inválido;
-- evidência de execução do `lint`;
-- link do repositório GitHub com histórico de commits.
-
-### Critérios de sucesso
-
-Considere a prática concluída quando:
-
-- entradas inválidas são bloqueadas antes do service;
-- rotas usam pipes de forma consistente;
-- DTOs refletem o contrato da API com clareza;
-- commits mostram evolução incremental e rastreável.
+```bash
+git add .
+git commit -m "fix: corrige pratica 01 de tarefas"
+```
 
 ## Síntese do encontro
 
-Você estudou que:
+Você revisou que:
 
-- DTOs formalizam contrato de entrada;
-- validação em runtime é essencial mesmo com TypeScript;
-- pipes transformam e validam dados antes da regra de negócio;
-- `ValidationPipe` global padroniza proteção da API;
-- Git/GitHub permitem registrar e compartilhar a evolução técnica com segurança.
+- rota é combinação de caminho, verbo e intenção;
+- `:id` deve ser usado para recurso específico;
+- query string deve ser usada para filtros e refinamento de listagem;
+- controller e service precisam ter responsabilidades bem separadas;
+- uma boa correção não é apenas "fazer funcionar", mas tornar o contrato da API claro e consistente.
+
+Resposta final para a pergunta central:
+
+Corrigir a Prática 01 exige alinhar cada endpoint com sua intenção HTTP, usar `:id` para identificar tarefas, reservar query strings para filtros e manter a lógica principal no service, para que a API fique previsível, legível e fácil de evoluir.

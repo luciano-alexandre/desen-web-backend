@@ -10,9 +10,9 @@ Cada encontro corresponde a 2 aulas de 45 minutos (90 minutos por encontro).
 | [4](./encontros/encontro-04.md) | U1 | Configuração do ambiente: Node.js, Nest CLI, lint e testes | - |
 | [5](./encontros/encontro-05.md) | U1 | Estrutura de projeto NestJS: modules, controllers e services | API inicial |
 | [6](./encontros/encontro-06.md) | U1 | Rotas, parâmetros, query strings e verbos HTTP | Prática 01 |
-| [7](./encontros/encontro-07.md) | U1 | DTOs, pipes e validação de dados | Prática 02 |
-| [8](./encontros/encontro-08.md) | U1 | Tratamento de erros, filtros e códigos de resposta | Prática 03 |
-| [9](./encontros/encontro-09.md) | U1 | CRUD em memória e organização em camadas | Checkpoint CRUD |
+| [7](./encontros/encontro-07.md) | U1 | Correção da Prática 01: API de tarefas com rotas, parâmetros e query strings | Correção Prática 01 |
+| [8](./encontros/encontro-08.md) | U1 | DTOs, pipes e validação de dados | Prática 02 |
+| [9](./encontros/encontro-09.md) | U1 | Tratamento de erros, filtros e códigos de resposta | Prática 03 |
 | [10](./encontros/encontro-10.md) | U1 | Testes básicos com Jest e Supertest | Prática 04 |
 | [11](./encontros/encontro-11.md) | U1 | Swagger e documentação de API | Documentação inicial |
 | [12](./encontros/encontro-12.md) | U1 | Revisão parcial da Unidade 1 e checkpoint prático | Checkpoint U1 |

@@ -448,9 +448,9 @@ criar(
 
 - `@Body()` lê o corpo JSON enviado na requisição HTTP e entrega esse conteúdo no parâmetro `body`.
 
-### Passo 5: adicionar `PUT /produtos/:id` (atualização completa)
+### Passo 5: fechar CRUD com `PUT`, `PATCH` e `DELETE`
 
-No `service`, adicione:
+No `service`, adicione os métodos:
 
 ```ts
 atualizarCompleto(id: number, dados: Omit<Produto, 'id'>) {
@@ -464,9 +464,28 @@ atualizarCompleto(id: number, dados: Omit<Produto, 'id'>) {
   this.produtos[indice] = atualizado;
   return atualizado;
 }
+
+atualizarParcial(id: number, dados: Partial<Omit<Produto, 'id'>>) {
+  const produto = this.buscarPorId(id);
+  const atualizado = { ...produto, ...dados };
+
+  this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
+  return atualizado;
+}
+
+remover(id: number) {
+  const existe = this.produtos.some((p) => p.id === id);
+
+  if (!existe) {
+    throw new NotFoundException('Produto não encontrado');
+  }
+
+  this.produtos = this.produtos.filter((p) => p.id !== id);
+  return { mensagem: `Produto ${id} removido com sucesso` };
+}
 ```
 
-No `controller`, adicione:
+No `controller`, adicione os métodos:
 
 ```ts
 @Put(':id')
@@ -488,25 +507,7 @@ atualizarCompleto(
 
   return this.produtosService.atualizarCompleto(idNumero, body);
 }
-```
 
-### Passo 6: adicionar `PATCH /produtos/:id` (atualização parcial)
-
-No `service`, adicione:
-
-```ts
-atualizarParcial(id: number, dados: Partial<Omit<Produto, 'id'>>) {
-  const produto = this.buscarPorId(id);
-  const atualizado = { ...produto, ...dados };
-
-  this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
-  return atualizado;
-}
-```
-
-No `controller`, adicione:
-
-```ts
 @Patch(':id')
 atualizarParcial(
   @Param('id') id: string,
@@ -526,28 +527,7 @@ atualizarParcial(
 
   return this.produtosService.atualizarParcial(idNumero, body);
 }
-```
 
-### Passo 7: adicionar `DELETE /produtos/:id`
-
-No `service`, adicione:
-
-```ts
-remover(id: number) {
-  const existe = this.produtos.some((p) => p.id === id);
-
-  if (!existe) {
-    throw new NotFoundException('Produto não encontrado');
-  }
-
-  this.produtos = this.produtos.filter((p) => p.id !== id);
-  return { mensagem: `Produto ${id} removido com sucesso` };
-}
-```
-
-No `controller`, adicione:
-
-```ts
 @Delete(':id')
 remover(@Param('id') id: string) {
   const idNumero = Number(id);
