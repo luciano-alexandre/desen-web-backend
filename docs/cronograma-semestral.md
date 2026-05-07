@@ -11,10 +11,10 @@ Cada encontro corresponde a 2 aulas de 45 minutos (90 minutos por encontro).
 | [5](./encontros/encontro-05.md) | U1 | Estrutura de projeto NestJS: modules, controllers e services | API inicial |
 | [6](./encontros/encontro-06.md) | U1 | Rotas, parâmetros, query strings e verbos HTTP | Prática 01 |
 | [7](./encontros/encontro-07.md) | U1 | Correção da Prática 01: API de tarefas com rotas, parâmetros e query strings | Correção Prática 01 |
-| [8](./encontros/encontro-08.md) | U1 | DTOs, pipes e validação de dados | Prática 02 |
-| [9](./encontros/encontro-09.md) | U1 | Tratamento de erros, filtros e códigos de resposta | Prática 03 |
-| [10](./encontros/encontro-10.md) | U1 | Testes básicos com Jest e Supertest | Prática 04 |
-| [11](./encontros/encontro-11.md) | U1 | Swagger e documentação de API | Documentação inicial |
+| [8](./encontros/encontro-08.md) | U1 | Realização da Atividade Avaliativa 01: API de reservas em memória | Avaliação prática 01 |
+| [9](./encontros/encontro-09.md) | U1 | Correção da Atividade Avaliativa 01: API de reservas com validação e PATCH | Correção Avaliativa 01 |
+| [10](./encontros/encontro-10.md) | U1 | DTOs, pipes e validação de dados | Prática 02 |
+| [11](./encontros/encontro-11.md) | U1 | Tratamento de erros, filtros e códigos de resposta | Prática 03 |
 | [12](./encontros/encontro-12.md) | U1 | Revisão parcial da Unidade 1 e checkpoint prático | Checkpoint U1 |
 | [13](./encontros/encontro-13.md) | U1 | Formulários, serialização e payloads vindos do cliente | - |
 | [14](./encontros/encontro-14.md) | U1 | Upload de arquivos e tratamento multipart | Prática 05 |

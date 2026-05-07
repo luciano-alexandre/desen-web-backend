@@ -2,546 +2,716 @@
 
 ## Tema
 
-Tratamento de erros, filtros e códigos de resposta.
+Correção da Atividade Avaliativa 01.
 
 ## Objetivos
 
-- Compreender por que tratamento de erros é parte do contrato da API.
-- Diferenciar erros de validação, recurso não encontrado, conflito e falha interna.
-- Aplicar exceções HTTP do NestJS (`BadRequestException`, `NotFoundException`, `ConflictException`, `InternalServerErrorException`).
-- Criar e registrar um filtro global de exceções para padronizar respostas de erro.
-- Usar códigos de status HTTP coerentes em respostas de sucesso e falha para o checkpoint **Prática 03**.
+- Revisar os critérios técnicos cobrados na Atividade Avaliativa 01.
+- Corrigir passo a passo a implementação de `POST /reservas` e `PATCH /reservas/:id`.
+- Aplicar apenas organização em `module`, `controller` e `service`.
+- Realizar validações de entrada manualmente no `controller` (sem DTOs e sem `ValidationPipe`).
+- Garantir regras de negócio no `service` com respostas HTTP coerentes.
 
-## Setup inicial para a Prática 03
+## Setup inicial para a correção
 
-Antes de iniciar, prepare o projeto evoluído até o encontro 08.
+Antes de iniciar a correção, vamos preparar do zero o ambiente da API usada na prova.
 
 ### Pré-requisitos
 
-- projeto NestJS com DTOs e `ValidationPipe` já funcionando;
-- API executando localmente em `http://localhost:3000`;
-- cliente HTTP disponível (`curl`, Thunder Client, Insomnia ou Postman);
-- repositório Git configurado.
+- Node.js e npm instalados;
+- Docker e Docker Compose instalados;
+- terminal na raiz do projeto;
+- cliente HTTP disponível (`curl`, Thunder Client, Insomnia ou Postman).
 
-### Passo 1: atualizar branch local
+### Passo 1: criação do projeto
 
-```bash
-git pull
-```
-
-### Passo 2: criar branch do encontro
+Crie um novo projeto NestJS para reproduzir a correção da atividade:
 
 ```bash
-git checkout -b feat/encontro-09-tratamento-erros
+npx @nestjs/cli new api-correcao-avaliativa-01
+cd api-correcao-avaliativa-01
 ```
 
-### Passo 3: subir a aplicação
+### Passo 2: configuração do Docker
+
+Crie os arquivos de containerização do projeto.
+
+Arquivo `Dockerfile`:
+
+```dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]
+```
+
+Arquivo `docker-compose.yml`:
+
+```yaml
+services:
+  api:
+    build: .
+    container_name: api-correcao-avaliativa-01
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
+```
+
+### Passo 3: subir aplicação com Docker
 
 ```bash
-npm run start:dev
+docker compose up --build
 ```
 
-### Passo 4: validar endpoint base
+### Passo 4: validar ambiente
 
-Teste uma rota existente, como `GET /produtos`, antes de iniciar as mudanças.
+Confirme que a API responde em:
 
-## Visão geral
+```text
+http://localhost:3000
+```
 
-No encontro 08, a turma garantiu que dados inválidos fossem bloqueados na entrada da API. Agora, o próximo passo é tornar o comportamento de erro previsível e profissional.
 
-Em backend real, não basta "dar erro". A API precisa indicar corretamente o tipo do problema com código HTTP coerente e payload padronizado, para que frontend e demais consumidores saibam como reagir.
+## Critérios usados na correção
 
-Neste encontro, você vai estruturar tratamento de erros com exceções do NestJS, aplicar filtros globais e revisar códigos de resposta para sucesso e falha.
+Durante a correção, adotaremos estas decisões:
 
-Ao final, a expectativa é que sua API responda erros de forma consistente, legível e alinhada ao contrato HTTP.
+- a API mantém separação entre `controller` (contrato HTTP) e `service` (regra de negócio);
+- `POST /reservas` cria reserva com status inicial `ativa`;
+- `PATCH /reservas/:id` permite atualizar apenas `status` e `integrantes`;
+- o `id` da rota é validado manualmente no `controller`;
+- os dados do corpo são validados manualmente no `controller`;
+- o `service` aplica regras de estado da reserva;
+- erros são retornados com `BadRequestException` e `NotFoundException`.
 
-## Pergunta central
+## Estrutura esperada da reserva
 
-Como projetar respostas de erro em NestJS com códigos HTTP corretos e formato padronizado, sem espalhar tratamento manual por toda a aplicação?
+```ts
+type Reserva = {
+  id: number;
+  responsavel: string;
+  sala: 'azul' | 'verde' | 'vermelha';
+  turno: 'manha' | 'tarde' | 'noite';
+  integrantes: number;
+  status: 'ativa' | 'confirmada' | 'cancelada' | 'encerrada';
+};
+```
 
-## Conceitos-base do encontro
-
-### O que é tratamento de erros em API
-
-Tratar erro em API é transformar falhas esperadas do domínio em respostas HTTP claras.
-
-Exemplos comuns:
-
-- cliente enviou dado inválido;
-- recurso solicitado não existe;
-- tentativa de criar recurso duplicado;
-- falha inesperada no processamento.
-
-### Exceções HTTP no NestJS
-
-O NestJS oferece classes prontas para representar cenários comuns:
-
-- `BadRequestException` (`400`);
-- `NotFoundException` (`404`);
-- `ConflictException` (`409`);
-- `InternalServerErrorException` (`500`).
-
-Em geral, essas exceções ficam mais bem localizadas no `service`, perto da regra que detecta o problema.
-
-### O que é Exception Filter
-
-`Exception Filter` é um componente do NestJS usado para interceptar exceções e definir o formato final da resposta de erro.
-
-Com filtro global, a API pode responder sempre com campos como:
-
-- `statusCode`;
-- `error`;
-- `message`;
-- `timestamp`;
-- `path`;
-- `method`.
-
-## Códigos HTTP mais usados neste encontro
-
-| Código | Uso no contexto da API |
-|---|---|
-| `200 OK` | leitura e atualização com retorno de conteúdo |
-| `201 Created` | criação bem-sucedida |
-| `204 No Content` | remoção bem-sucedida sem corpo |
-| `400 Bad Request` | erro de validação ou entrada inválida |
-| `404 Not Found` | recurso solicitado não existe |
-| `409 Conflict` | conflito de estado, como duplicidade |
-| `500 Internal Server Error` | falha não tratada internamente |
-
-## Fluxo de erro no NestJS
+## Fluxo da solução corrigida
 
 ```mermaid
 flowchart LR
-    C[Cliente HTTP] --> CT[Controller]
-    CT --> SV[Service]
-    SV -->|falha de dominio| EX[HttpException]
-    EX --> FL[Exception Filter]
-    FL --> R[Resposta padronizada]
-    R --> C
+    C[Cliente HTTP] --> CT[ReservasController]
+    CT -->|validacao manual| SV[ReservasService]
+    SV --> CT
+    CT --> C
 ```
 
 Leitura do fluxo:
 
-- o cliente chama a rota;
-- o controller delega ao service;
-- o service lança exceção apropriada;
-- o filtro transforma a exceção em resposta padrão;
-- o cliente recebe status e mensagem claros.
+- o cliente envia `body` e `id`;
+- o `controller` valida formato e campos permitidos;
+- o `service` aplica regras de negócio e atualiza dados em memória;
+- a API responde com sucesso ou erro coerente.
 
-## Exemplo guiado: padronizando erros na API de produtos
+## Correção passo a passo
 
-### Passo 1: lançar exceções semânticas no service
+### Passo 0: gerar artefatos do módulo
 
-Arquivo `src/produtos/produtos.service.ts`:
+Se ainda não criou o módulo `reservas`:
+
+```bash
+npx nest g module reservas
+npx nest g service reservas
+npx nest g controller reservas
+```
+
+Se estiver usando container:
+
+```bash
+docker compose exec api npx nest g module reservas
+docker compose exec api npx nest g service reservas
+docker compose exec api npx nest g controller reservas
+```
+
+### Passo 1: definir o tipo da reserva no `service`
+
+Ponto do enunciado atendido: estrutura de `Reserva`.
+
+Arquivo `src/reservas/reservas.service.ts`:
 
 ```ts
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
-
-type Produto = {
+type Reserva = {
   id: number;
-  nome: string;
-  categoria: string;
-  preco: number;
-  ativo: boolean;
+  responsavel: string;
+  sala: 'azul' | 'verde' | 'vermelha';
+  turno: 'manha' | 'tarde' | 'noite';
+  integrantes: number;
+  status: 'ativa' | 'confirmada' | 'cancelada' | 'encerrada';
 };
+```
+
+### Passo 2: criar lista em memória e método de busca por id
+
+Ponto do enunciado atendido: base para o `PATCH` localizar a reserva por `id` (`AV7`).
+
+```ts
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 
 @Injectable()
-export class ProdutosService {
-  private produtos: Produto[] = [
-    { id: 1, nome: 'Notebook', categoria: 'hardware', preco: 3500, ativo: true },
-    { id: 2, nome: 'Mouse', categoria: 'hardware', preco: 120, ativo: true },
-    { id: 3, nome: 'Curso NestJS', categoria: 'educacao', preco: 89, ativo: false },
+export class ReservasService {
+  private reservas: Reserva[] = [
+    { id: 1, responsavel: 'Ana', sala: 'azul', turno: 'manha', integrantes: 3, status: 'ativa' },
+    { id: 2, responsavel: 'Bruno', sala: 'verde', turno: 'tarde', integrantes: 5, status: 'confirmada' },
+    { id: 3, responsavel: 'Carla', sala: 'vermelha', turno: 'noite', integrantes: 2, status: 'cancelada' },
   ];
 
-  listar(categoria?: string, limite?: number) {
-    let resultado = [...this.produtos];
-
-    if (categoria) {
-      resultado = resultado.filter((p) => p.categoria === categoria);
-    }
-
-    if (limite && limite > 0) {
-      resultado = resultado.slice(0, limite);
-    }
-
-    return resultado;
-  }
-
   buscarPorId(id: number) {
-    const produto = this.produtos.find((p) => p.id === id);
+    const reserva = this.reservas.find((r) => r.id === id);
 
-    if (!produto) {
-      throw new NotFoundException('Produto nao encontrado');
+    if (!reserva) {
+      throw new NotFoundException('Reserva não encontrada');
     }
 
-    return produto;
-  }
-
-  criar(dados: CreateProdutoDto) {
-    const duplicado = this.produtos.some(
-      (p) => p.nome.toLowerCase() === dados.nome.toLowerCase(),
-    );
-
-    if (duplicado) {
-      throw new ConflictException('Ja existe produto com esse nome');
-    }
-
-    if (dados.preco <= 0) {
-      throw new BadRequestException('Preco deve ser maior que zero');
-    }
-
-    const novoId =
-      this.produtos.length > 0
-        ? Math.max(...this.produtos.map((p) => p.id)) + 1
-        : 1;
-
-    const novoProduto: Produto = { id: novoId, ...dados };
-    this.produtos.push(novoProduto);
-
-    return novoProduto;
-  }
-
-  atualizarParcial(id: number, dados: UpdateProdutoDto) {
-    const produto = this.buscarPorId(id);
-
-    if (dados.preco !== undefined && dados.preco <= 0) {
-      throw new BadRequestException('Preco deve ser maior que zero');
-    }
-
-    const atualizado = { ...produto, ...dados };
-    this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
-
-    return atualizado;
+    return reserva;
   }
 }
 ```
 
-Pontos de atenção:
+### Passo 3: implementar criação no `service` com status inicial fixo
 
-1. `NotFoundException` comunica ausência de recurso.
-2. `ConflictException` comunica duplicidade.
-3. `BadRequestException` comunica entrada inválida.
-4. A exceção é lançada perto da regra que detecta o problema.
-
-### Passo 2: criar filtro global de exceções HTTP
-
-Arquivo `src/common/filters/http-exception.filter.ts`:
+Ponto do enunciado atendido: “criar a reserva com status inicial ativa” (`AV6`).
 
 ```ts
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+criar(dados: {
+  responsavel: string;
+  sala: 'azul' | 'verde' | 'vermelha';
+  turno: 'manha' | 'tarde' | 'noite';
+  integrantes: number;
+}) {
+  const novoId =
+    this.reservas.length > 0
+      ? Math.max(...this.reservas.map((r) => r.id)) + 1
+      : 1;
 
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+  const novaReserva: Reserva = {
+    id: novoId,
+    responsavel: dados.responsavel,
+    sala: dados.sala,
+    turno: dados.turno,
+    integrantes: dados.integrantes,
+    status: 'ativa',
+  };
 
-    const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
+  this.reservas.push(novaReserva);
+  return novaReserva;
+}
+```
 
-    let message: string | string[] = 'Erro inesperado';
-    let error = HttpStatus[status] ?? 'HttpException';
+### Passo 4: criar rota `POST /reservas`
 
-    if (typeof exceptionResponse === 'string') {
-      message = exceptionResponse;
+Ponto do enunciado atendido: rota obrigatória `POST /reservas` (`AV1`).
+
+Arquivo `src/reservas/reservas.controller.ts`:
+
+```ts
+import { BadRequestException, Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { ReservasService } from './reservas.service';
+
+@Controller('reservas')
+export class ReservasController {
+  constructor(private readonly reservasService: ReservasService) {}
+
+  @Post()
+  criar(
+    @Body()
+    body: {
+      responsavel?: string;
+      sala?: string;
+      turno?: string;
+      integrantes?: number;
+    },
+  ) {
+    // validações entram nos próximos passos
+    return this.reservasService.criar(body as {
+      responsavel: string;
+      sala: 'azul' | 'verde' | 'vermelha';
+      turno: 'manha' | 'tarde' | 'noite';
+      integrantes: number;
+    });
+  }
+```
+
+### Passo 5: validar campos obrigatórios no `POST`
+
+Ponto do enunciado atendido: “exigir os campos responsavel, sala, turno e integrantes” (`AV2`).
+
+Dentro do método `criar` do controller:
+
+```ts
+if (!body.responsavel || !body.sala || !body.turno || body.integrantes === undefined) {
+  throw new BadRequestException(
+    'Campos obrigatórios: responsavel, sala, turno e integrantes',
+  );
+}
+```
+
+### Passo 6: validar tipo de `integrantes` no `POST`
+
+Ponto do enunciado atendido: parte da consistência de entrada do `POST` (apoio ao `AV2`).
+
+```ts
+if (typeof body.integrantes !== 'number' || !Number.isInteger(body.integrantes)) {
+  throw new BadRequestException('Integrantes deve ser um número inteiro');
+}
+```
+
+### Passo 7: validar domínio de `sala` no `POST`
+
+Ponto do enunciado atendido: “aceitar apenas as salas azul, verde e vermelha” (`AV3`).
+
+```ts
+const salasPermitidas = ['azul', 'verde', 'vermelha'];
+if (!salasPermitidas.includes(body.sala)) {
+  throw new BadRequestException('Sala inválida. Use: azul, verde ou vermelha');
+}
+```
+
+### Passo 8: validar domínio de `turno` e faixa de integrantes no `POST`
+
+Pontos do enunciado atendidos:
+
+- “aceitar apenas os turnos manha, tarde e noite” (`AV4`);
+- “aceitar apenas valores de integrantes entre 1 e 6” (`AV5`).
+
+```ts
+const turnosPermitidos = ['manha', 'tarde', 'noite'];
+if (!turnosPermitidos.includes(body.turno)) {
+  throw new BadRequestException('Turno inválido. Use: manha, tarde ou noite');
+}
+
+if (body.integrantes < 1 || body.integrantes > 6) {
+  throw new BadRequestException('Integrantes deve ser um número inteiro entre 1 e 6');
+}
+```
+
+### Passo 9: criar rota `PATCH /reservas/:id` e validar parâmetro
+
+Pontos do enunciado atendidos:
+
+- rota obrigatória `PATCH /reservas/:id` (`AV1`);
+- localizar por `id` com base em identificador válido (`AV7`).
+
+```ts
+@Patch(':id')
+atualizarParcial(
+  @Param('id') id: string,
+  @Body()
+  body: {
+    status?: string;
+    integrantes?: number;
+    responsavel?: string;
+    sala?: string;
+    turno?: string;
+  },
+) {
+  const idNumero = Number(id);
+
+  if (Number.isNaN(idNumero)) {
+    throw new BadRequestException('Parâmetro "id" deve ser numérico');
+  }
+
+  // demais validações entram nos próximos passos
+}
+```
+
+### Passo 10: rejeitar corpo vazio no `PATCH`
+
+Ponto do enunciado atendido: “rejeitar requisições com corpo vazio” (`AV8`).
+
+```ts
+if (Object.keys(body).length === 0) {
+  throw new BadRequestException('Corpo da requisição não pode ser vazio');
+}
+```
+
+### Passo 11: aceitar apenas `status` e `integrantes` no `PATCH`
+
+Pontos do enunciado atendidos:
+
+- “permitir atualização apenas dos campos status e integrantes” (`AV9`);
+- “rejeitar tentativas de alterar responsavel, sala ou turno” (`AV10`).
+
+```ts
+const camposPermitidos = ['status', 'integrantes'];
+const campoNaoPermitido = Object.keys(body).find(
+  (campo) => !camposPermitidos.includes(campo),
+);
+
+if (campoNaoPermitido) {
+  throw new BadRequestException(
+    `Campo "${campoNaoPermitido}" não pode ser atualizado nesta rota`,
+  );
+}
+```
+
+### Passo 12: localizar reserva por id no `service`
+
+Ponto do enunciado atendido: “localizar a reserva pelo id e retornar erro caso ela não exista” (`AV7`).
+
+No `service`, dentro de `atualizarParcial`:
+
+```ts
+const reservaAtual = this.buscarPorId(id);
+```
+
+### Passo 13: validar `status` e `integrantes` recebidos no `PATCH`
+
+Ponto do enunciado atendido: “aceitar integrantes apenas entre 1 e 6” (`AV11`).
+
+Também mantemos `status` restrito ao domínio da entidade.
+
+```ts
+if (body.status !== undefined) {
+  const statusPermitidos = ['ativa', 'confirmada', 'cancelada', 'encerrada'];
+  if (!statusPermitidos.includes(body.status)) {
+    throw new BadRequestException(
+      'Status inválido. Use: ativa, confirmada, cancelada ou encerrada',
+    );
+  }
+}
+
+if (body.integrantes !== undefined) {
+  if (
+    typeof body.integrantes !== 'number' ||
+    !Number.isInteger(body.integrantes) ||
+    body.integrantes < 1 ||
+    body.integrantes > 6
+  ) {
+    throw new BadRequestException('Integrantes deve ser um número inteiro entre 1 e 6');
+  }
+}
+```
+
+### Passo 14: bloquear atualização de reserva cancelada/encerrada
+
+Ponto do enunciado atendido: “rejeitar qualquer alteração em reservas com status cancelada ou encerrada” (`AV12`).
+
+No `service`, dentro de `atualizarParcial`:
+
+```ts
+if (reservaAtual.status === 'cancelada' || reservaAtual.status === 'encerrada') {
+  throw new BadRequestException(
+    'Reservas canceladas ou encerradas não podem ser alteradas',
+  );
+}
+
+const reservaAtualizada: Reserva = { ...reservaAtual, ...dados };
+this.reservas = this.reservas.map((r) => (r.id === id ? reservaAtualizada : r));
+return reservaAtualizada;
+```
+
+### Passo 15: versão consolidada dos arquivos
+
+`src/reservas/reservas.service.ts`:
+
+```ts
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+
+type Reserva = {
+  id: number;
+  responsavel: string;
+  sala: 'azul' | 'verde' | 'vermelha';
+  turno: 'manha' | 'tarde' | 'noite';
+  integrantes: number;
+  status: 'ativa' | 'confirmada' | 'cancelada' | 'encerrada';
+};
+
+@Injectable()
+export class ReservasService {
+  private reservas: Reserva[] = [
+    { id: 1, responsavel: 'Ana', sala: 'azul', turno: 'manha', integrantes: 3, status: 'ativa' },
+    { id: 2, responsavel: 'Bruno', sala: 'verde', turno: 'tarde', integrantes: 5, status: 'confirmada' },
+    { id: 3, responsavel: 'Carla', sala: 'vermelha', turno: 'noite', integrantes: 2, status: 'cancelada' },
+  ];
+
+  buscarPorId(id: number) {
+    const reserva = this.reservas.find((r) => r.id === id);
+
+    if (!reserva) {
+      throw new NotFoundException('Reserva não encontrada');
     }
 
-    if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-      const body = exceptionResponse as {
-        message?: string | string[];
-        error?: string;
-      };
+    return reserva;
+  }
 
-      if (body.message) {
-        message = body.message;
-      }
+  criar(dados: {
+    responsavel: string;
+    sala: 'azul' | 'verde' | 'vermelha';
+    turno: 'manha' | 'tarde' | 'noite';
+    integrantes: number;
+  }) {
+    const novoId =
+      this.reservas.length > 0
+        ? Math.max(...this.reservas.map((r) => r.id)) + 1
+        : 1;
 
-      if (body.error) {
-        error = body.error;
+    const novaReserva: Reserva = {
+      id: novoId,
+      responsavel: dados.responsavel,
+      sala: dados.sala,
+      turno: dados.turno,
+      integrantes: dados.integrantes,
+      status: 'ativa',
+    };
+
+    this.reservas.push(novaReserva);
+    return novaReserva;
+  }
+
+  atualizarParcial(
+    id: number,
+    dados: {
+      status?: 'ativa' | 'confirmada' | 'cancelada' | 'encerrada';
+      integrantes?: number;
+    },
+  ) {
+    const reservaAtual = this.buscarPorId(id);
+
+    if (reservaAtual.status === 'cancelada' || reservaAtual.status === 'encerrada') {
+      throw new BadRequestException(
+        'Reservas canceladas ou encerradas não podem ser alteradas',
+      );
+    }
+
+    const reservaAtualizada: Reserva = {
+      ...reservaAtual,
+      ...dados,
+    };
+
+    this.reservas = this.reservas.map((r) =>
+      r.id === id ? reservaAtualizada : r,
+    );
+
+    return reservaAtualizada;
+  }
+}
+```
+
+`src/reservas/reservas.controller.ts`:
+
+```ts
+import { BadRequestException, Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { ReservasService } from './reservas.service';
+
+@Controller('reservas')
+export class ReservasController {
+  constructor(private readonly reservasService: ReservasService) {}
+
+  @Post()
+  criar(
+    @Body()
+    body: {
+      responsavel?: string;
+      sala?: string;
+      turno?: string;
+      integrantes?: number;
+    },
+  ) {
+    if (!body.responsavel || !body.sala || !body.turno || body.integrantes === undefined) {
+      throw new BadRequestException(
+        'Campos obrigatórios: responsavel, sala, turno e integrantes',
+      );
+    }
+
+    if (typeof body.integrantes !== 'number' || !Number.isInteger(body.integrantes)) {
+      throw new BadRequestException('Integrantes deve ser um número inteiro');
+    }
+
+    const salasPermitidas = ['azul', 'verde', 'vermelha'];
+    if (!salasPermitidas.includes(body.sala)) {
+      throw new BadRequestException('Sala inválida. Use: azul, verde ou vermelha');
+    }
+
+    const turnosPermitidos = ['manha', 'tarde', 'noite'];
+    if (!turnosPermitidos.includes(body.turno)) {
+      throw new BadRequestException('Turno inválido. Use: manha, tarde ou noite');
+    }
+
+    if (body.integrantes < 1 || body.integrantes > 6) {
+      throw new BadRequestException('Integrantes deve ser um número inteiro entre 1 e 6');
+    }
+
+    return this.reservasService.criar({
+      responsavel: body.responsavel,
+      sala: body.sala as 'azul' | 'verde' | 'vermelha',
+      turno: body.turno as 'manha' | 'tarde' | 'noite',
+      integrantes: body.integrantes,
+    });
+  }
+
+  @Patch(':id')
+  atualizarParcial(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      status?: string;
+      integrantes?: number;
+      responsavel?: string;
+      sala?: string;
+      turno?: string;
+    },
+  ) {
+    const idNumero = Number(id);
+
+    if (Number.isNaN(idNumero)) {
+      throw new BadRequestException('Parâmetro "id" deve ser numérico');
+    }
+
+    if (Object.keys(body).length === 0) {
+      throw new BadRequestException('Corpo da requisição não pode ser vazio');
+    }
+
+    const camposPermitidos = ['status', 'integrantes'];
+    const campoNaoPermitido = Object.keys(body).find(
+      (campo) => !camposPermitidos.includes(campo),
+    );
+
+    if (campoNaoPermitido) {
+      throw new BadRequestException(
+        `Campo "${campoNaoPermitido}" não pode ser atualizado nesta rota`,
+      );
+    }
+
+    if (body.status !== undefined) {
+      const statusPermitidos = ['ativa', 'confirmada', 'cancelada', 'encerrada'];
+      if (!statusPermitidos.includes(body.status)) {
+        throw new BadRequestException(
+          'Status inválido. Use: ativa, confirmada, cancelada ou encerrada',
+        );
       }
     }
 
-    response.status(status).json({
-      statusCode: status,
-      error,
-      message,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
+    if (body.integrantes !== undefined) {
+      if (
+        typeof body.integrantes !== 'number' ||
+        !Number.isInteger(body.integrantes) ||
+        body.integrantes < 1 ||
+        body.integrantes > 6
+      ) {
+        throw new BadRequestException('Integrantes deve ser um número inteiro entre 1 e 6');
+      }
+    }
+
+    return this.reservasService.atualizarParcial(idNumero, {
+      status: body.status as 'ativa' | 'confirmada' | 'cancelada' | 'encerrada' | undefined,
+      integrantes: body.integrantes,
     });
   }
 }
 ```
 
-### Passo 3: registrar filtro no `main.ts`
+### Passo 16: teste final com rastreio por critério
 
-Arquivo `src/main.ts`:
-
-```ts
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
-
-  app.useGlobalFilters(new HttpExceptionFilter());
-
-  await app.listen(3000);
-}
-bootstrap();
-```
-
-### Passo 4: revisar códigos de sucesso no controller
-
-Arquivo `src/produtos/produtos.controller.ts`:
-
-```ts
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
-import { ProdutosService } from './produtos.service';
-
-@Controller('produtos')
-export class ProdutosController {
-  constructor(private readonly produtosService: ProdutosService) {}
-
-  @Get()
-  listar(
-    @Query('categoria') categoria?: string,
-    @Query('limite', new DefaultValuePipe(10), ParseIntPipe) limite?: number,
-  ) {
-    return this.produtosService.listar(categoria, limite);
-  }
-
-  @Get(':id')
-  buscarPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.produtosService.buscarPorId(id);
-  }
-
-  @Post()
-  criar(@Body() body: CreateProdutoDto) {
-    return this.produtosService.criar(body);
-  }
-
-  @Patch(':id')
-  atualizarParcial(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateProdutoDto,
-  ) {
-    return this.produtosService.atualizarParcial(id, body);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  remover(@Param('id', ParseIntPipe) id: number) {
-    this.produtosService.remover(id);
-  }
-}
-```
-
-Ponto de atenção:
-
-- `@HttpCode(204)` em `DELETE` indica remoção bem-sucedida sem corpo de resposta.
-
-## Testando tratamento de erros na prática
-
-Com a aplicação em execução, teste:
+Com a API em execução, valide cada ponto da avaliação:
 
 ```text
-GET     /produtos/999
-POST    /produtos (nome duplicado)
-POST    /produtos (payload invalido)
-PATCH   /produtos/1 (preco <= 0)
-DELETE  /produtos/999
+AV1  POST   /reservas
+AV1  PATCH  /reservas/1
+AV2  POST   /reservas            (faltando campos obrigatórios)
+AV3  POST   /reservas            (sala inválida)
+AV4  POST   /reservas            (turno inválido)
+AV5  POST   /reservas            (integrantes = 0 ou 7)
+AV7  PATCH  /reservas/999        (id inexistente)
+AV8  PATCH  /reservas/1          (body vazio)
+AV9  PATCH  /reservas/1          (somente status/integrantes)
+AV10 PATCH  /reservas/1          (tentando alterar responsavel)
+AV11 PATCH  /reservas/1          (integrantes fora de 1..6)
+AV12 PATCH  /reservas/3          (reserva cancelada)
 ```
 
-Exemplo `404`:
+Exemplo válido de criação:
 
 ```bash
-curl -i http://localhost:3000/produtos/999
-```
-
-Exemplo `409`:
-
-```bash
-curl -i -X POST http://localhost:3000/produtos \
+curl -X POST http://localhost:3000/reservas \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Notebook","categoria":"hardware","preco":3000,"ativo":true}'
+  -d '{"responsavel":"Diego","sala":"azul","turno":"noite","integrantes":4}'
 ```
 
-Exemplo `400`:
+Exemplo inválido (`AV2` - campos obrigatórios):
 
 ```bash
-curl -i -X PATCH http://localhost:3000/produtos/1 \
+curl -i -X POST http://localhost:3000/reservas \
   -H "Content-Type: application/json" \
-  -d '{"preco":0}'
+  -d '{"responsavel":"Diego"}'
 ```
 
-Resposta esperada:
+Exemplo inválido (`AV10` - campo proibido no `PATCH`):
 
-```json
-{
-  "statusCode": 400,
-  "error": "Bad Request",
-  "message": "Preco deve ser maior que zero",
-  "timestamp": "2026-04-24T12:00:00.000Z",
-  "path": "/produtos/1",
-  "method": "PATCH"
-}
+```bash
+curl -i -X PATCH http://localhost:3000/reservas/1 \
+  -H "Content-Type: application/json" \
+  -d '{"responsavel":"Novo Nome"}'
 ```
-
-## Utilizando Thunder Client para validar erros
-
-No Thunder Client, confira em cada requisição:
-
-- método e URL corretos;
-- status retornado (`400`, `404`, `409` etc.);
-- corpo de resposta no padrão do filtro;
-- diferença entre respostas de sucesso e falha.
-
-Fluxo recomendado para a aula:
-
-1. Criar coleção `Encontro 09 - Erros e Filtros`.
-2. Salvar requisições de sucesso e falha lado a lado.
-3. Comparar os status HTTP e discutir por que cada código foi usado.
-
 ## Erros comuns e como corrigir
 
-### Erro: retornar `200` quando o recurso não existe
+### Erro: aceitar `status` no `POST`
 
-Sintoma: endpoint responde com objeto vazio, `null` ou mensagem genérica.
-
-Correção:
-
-- lançar `NotFoundException` quando não encontrar o recurso.
-
-### Erro: usar sempre `BadRequestException`
-
-Sintoma: a API perde semântica e dificulta tratamento no frontend.
+Sintoma: cliente define qualquer status na criação.
 
 Correção:
 
-- escolher a exceção específica para cada cenário.
+- ignorar status enviado no corpo;
+- criar sempre com `status: 'ativa'` no `service`.
 
-### Erro: padronizar manualmente em cada controller
+### Erro: permitir atualização de `responsavel`, `sala` e `turno`
 
-Sintoma: duplicação de código e respostas inconsistentes.
-
-Correção:
-
-- criar `Exception Filter` global.
-
-### Erro: ignorar status corretos de sucesso
-
-Sintoma: `DELETE` retorna `200` com payload arbitrário sem necessidade.
+Sintoma: `PATCH` altera campos que a prova não permite.
 
 Correção:
 
-- usar `@HttpCode(204)` quando a remoção não precisa devolver conteúdo.
+- validar manualmente os campos recebidos;
+- aceitar apenas `status` e `integrantes`.
+
+### Erro: não tratar `id` inválido
+
+Sintoma: rota aceita `PATCH /reservas/abc` sem resposta clara.
+
+Correção:
+
+- converter `id` com `Number(id)`;
+- retornar `400` quando `id` não for numérico.
+
+### Erro: permitir alteração de reserva cancelada/encerrada
+
+Sintoma: API altera reserva que deveria estar bloqueada.
+
+Correção:
+
+- validar status atual da reserva no `service`;
+- retornar erro quando status atual for `cancelada` ou `encerrada`.
 
 ## Checklist de aprendizagem
 
 Ao final, confirme se você consegue:
 
-- explicar diferença entre erro de validação, não encontrado e conflito;
-- mapear cenários para códigos HTTP adequados;
-- lançar exceções semânticas no service;
-- criar e registrar filtro global de exceções;
-- validar respostas de erro com payload padronizado;
-- justificar quando usar `200`, `201` e `204`.
-
-## Prática de laboratório (Prática 03)
-
-### Proposta
-
-Evoluir a API de `tarefas` com tratamento de erros semântico e padronizado.
-
-### Requisitos da prática
-
-- implementar exceções adequadas no `tarefas.service.ts`;
-- usar `NotFoundException` para `id` inexistente;
-- usar `BadRequestException` para transições inválidas de status;
-- usar `ConflictException` para duplicidade de título;
-- criar filtro global para padronizar resposta de erro;
-- aplicar `@HttpCode(204)` em remoção bem-sucedida;
-- testar cenários de sucesso e erro com cliente HTTP;
-- executar `npm run lint`;
-- registrar commits com mensagens semânticas.
-
-### Instruções sugeridas
-
-1. Revise as rotas atuais de `tarefas` e liste cenários de falha esperados.
-2. Aplique exceções semânticas no service, próximas às regras de negócio.
-3. Crie filtro global em `src/common/filters`.
-4. Registre o filtro no `main.ts`.
-5. Ajuste códigos de sucesso no controller.
-6. Teste com Thunder Client ou `curl` e salve evidências.
-7. Execute lint e faça commits incrementais.
-
-### Entrega
-
-Apresentar:
-
-- código de `tarefas.controller.ts` e `tarefas.service.ts`;
-- arquivo do filtro global de exceções;
-- evidência de respostas `400`, `404` e `409`;
-- evidência de remoção com `204`;
-- evidência de execução do `lint`;
-- link do repositório GitHub com histórico dos commits.
-
-### Critérios de sucesso
-
-Considere a prática concluída quando:
-
-- cada cenário de erro retorna status HTTP coerente;
-- payload de erro segue padrão único;
-- tratamento de erro está centralizado e sem duplicação desnecessária;
-- endpoints de sucesso usam códigos adequados ao contrato da operação.
+- implementar `POST` e `PATCH` sem DTOs, com validação manual;
+- separar responsabilidades entre `controller` e `service`;
+- validar parâmetros de rota e corpo da requisição;
+- aplicar regras de negócio de estado no `service`;
+- justificar cada erro HTTP retornado pela API.
 
 ## Síntese do encontro
 
-Você estudou que:
-
-- tratar erro é parte do contrato da API, não detalhe de implementação;
-- exceções semânticas tornam respostas mais úteis para frontend e testes;
-- filtros globais padronizam formato de erro e reduzem repetição;
-- códigos HTTP corretos melhoram legibilidade, depuração e manutenção;
-- uma API profissional comunica sucesso e falha com consistência.
+Você corrigiu a atividade avaliativa usando apenas os conceitos dos encontros 01 a 07: estrutura modular, rotas, parâmetros, validação manual e regras de negócio em memória com NestJS.
