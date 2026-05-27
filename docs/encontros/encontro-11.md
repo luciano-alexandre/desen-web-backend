@@ -2,23 +2,24 @@
 
 ## Tema
 
-Tratamento de erros, filtros e códigos de resposta.
+Correção da Prática 02: API de tarefas com filtros, tratamento de erros e códigos de resposta.
 
 ## Objetivos
 
-- Compreender por que tratamento de erros é parte do contrato da API.
-- Diferenciar erros de validação, recurso não encontrado, conflito e falha interna.
-- Aplicar exceções HTTP do NestJS (`BadRequestException`, `NotFoundException`, `ConflictException`, `InternalServerErrorException`).
-- Criar e registrar um filtro global de exceções para padronizar respostas de erro.
-- Usar códigos de status HTTP coerentes em respostas de sucesso e falha para o checkpoint **Prática 03**.
+- Revisar os critérios técnicos da Prática 02 (DTOs, pipes e validação).
+- Corrigir o uso de filtros na listagem de tarefas (`status` e `prioridade`).
+- Aplicar tratamento de erros com exceções HTTP semânticas no NestJS.
+- Criar e registrar um filtro global para padronizar respostas de erro.
+- Consolidar o uso de códigos de resposta HTTP coerentes em sucesso e falha.
 
-## Setup inicial para a Prática 03
+## Setup inicial para a correção da Prática 02
 
-Antes de iniciar, prepare o projeto evoluído até o encontro 10.
+Antes de iniciar a correção, prepare o projeto evoluído até o encontro 10.
 
 ### Pré-requisitos
 
-- projeto NestJS com DTOs e `ValidationPipe` já funcionando;
+- projeto NestJS com módulo de `tarefas` e DTOs já criados;
+- `ValidationPipe` global ativo;
 - API executando localmente em `http://localhost:3000`;
 - cliente HTTP disponível (`curl`, Thunder Client, Insomnia ou Postman);
 - repositório Git configurado.
@@ -29,10 +30,10 @@ Antes de iniciar, prepare o projeto evoluído até o encontro 10.
 git pull
 ```
 
-### Passo 2: criar branch do encontro
+### Passo 2: criar branch de correção
 
 ```bash
-git checkout -b feat/encontro-11-tratamento-erros
+git checkout -b fix/correcao-pratica-02-encontro-11
 ```
 
 ### Passo 3: subir a aplicação
@@ -43,77 +44,51 @@ npm run start:dev
 
 ### Passo 4: validar endpoint base
 
-Teste uma rota existente, como `GET /produtos`, antes de iniciar as mudanças.
+Teste uma rota existente, como `GET /tarefas`, antes de iniciar as mudanças.
 
 ## Visão geral
 
-No encontro 10, a turma garantiu que dados inválidos fossem bloqueados na entrada da API. Agora, o próximo passo é tornar o comportamento de erro previsível e profissional.
+No encontro 10, a turma construiu a Prática 02 com foco em DTOs, pipes e validação de entrada.
 
-Em backend real, não basta "dar erro". A API precisa indicar corretamente o tipo do problema com código HTTP coerente e payload padronizado, para que frontend e demais consumidores saibam como reagir.
+Neste encontro, a proposta é corrigir essa prática passo a passo e, durante a correção, incorporar os tópicos de encontro 11: filtros de listagem, tratamento de erros e códigos de resposta HTTP.
 
-Neste encontro, você vai estruturar tratamento de erros com exceções do NestJS, aplicar filtros globais e revisar códigos de resposta para sucesso e falha.
-
-Ao final, a expectativa é que sua API responda erros de forma consistente, legível e alinhada ao contrato HTTP.
+Ao final, a expectativa é que a API de `tarefas` esteja validando entradas, aplicando regras de negócio com exceções semânticas e respondendo com payload de erro padronizado.
 
 ## Pergunta central
 
-Como projetar respostas de erro em NestJS com códigos HTTP corretos e formato padronizado, sem espalhar tratamento manual por toda a aplicação?
+Como corrigir a Prática 02 para que a API de `tarefas` combine validação de entrada, filtros úteis e tratamento de erros consistente com o contrato HTTP?
 
-## Conceitos-base do encontro
+## Critérios usados na correção
 
-### O que é tratamento de erros em API
+Durante a correção, vamos adotar as seguintes decisões:
 
-Tratar erro em API é transformar falhas esperadas do domínio em respostas HTTP claras.
+- `GET /tarefas` lista tarefas com filtros opcionais via query string;
+- `GET /tarefas/:id` busca recurso específico;
+- `POST /tarefas` cria tarefa com `201 Created`;
+- `PATCH /tarefas/:id` altera parcialmente uma tarefa;
+- `DELETE /tarefas/:id` remove tarefa com `204 No Content`;
+- erros de domínio usam exceções semânticas (`400`, `404`, `409`);
+- filtro global padroniza o payload de erro.
 
-Exemplos comuns:
-
-- cliente enviou dado inválido;
-- recurso solicitado não existe;
-- tentativa de criar recurso duplicado;
-- falha inesperada no processamento.
-
-### Exceções HTTP no NestJS
-
-O NestJS oferece classes prontas para representar cenários comuns:
-
-- `BadRequestException` (`400`);
-- `NotFoundException` (`404`);
-- `ConflictException` (`409`);
-- `InternalServerErrorException` (`500`).
-
-Em geral, essas exceções ficam mais bem localizadas no `service`, perto da regra que detecta o problema.
-
-### O que é Exception Filter
-
-`Exception Filter` é um componente do NestJS usado para interceptar exceções e definir o formato final da resposta de erro.
-
-Com filtro global, a API pode responder sempre com campos como:
-
-- `statusCode`;
-- `error`;
-- `message`;
-- `timestamp`;
-- `path`;
-- `method`.
-
-## Códigos HTTP mais usados neste encontro
+## Códigos HTTP trabalhados nesta correção
 
 | Código | Uso no contexto da API |
 |---|---|
 | `200 OK` | leitura e atualização com retorno de conteúdo |
 | `201 Created` | criação bem-sucedida |
 | `204 No Content` | remoção bem-sucedida sem corpo |
-| `400 Bad Request` | erro de validação ou entrada inválida |
-| `404 Not Found` | recurso solicitado não existe |
-| `409 Conflict` | conflito de estado, como duplicidade |
+| `400 Bad Request` | entrada inválida ou regra inválida |
+| `404 Not Found` | tarefa não encontrada |
+| `409 Conflict` | duplicidade de título |
 | `500 Internal Server Error` | falha não tratada internamente |
 
-## Fluxo de erro no NestJS
+## Fluxo da correção no NestJS
 
 ```mermaid
 flowchart LR
-    C[Cliente HTTP] --> CT[Controller]
-    CT --> SV[Service]
+    C[Cliente HTTP] --> VP[ValidationPipe]
+    VP --> CT[TarefasController]
+    CT --> SV[TarefasService]
     SV -->|falha de dominio| EX[HttpException]
     EX --> FL[Exception Filter]
     FL --> R[Resposta padronizada]
@@ -122,17 +97,105 @@ flowchart LR
 
 Leitura do fluxo:
 
-- o cliente chama a rota;
-- o controller delega ao service;
-- o service lança exceção apropriada;
-- o filtro transforma a exceção em resposta padrão;
-- o cliente recebe status e mensagem claros.
+- a entrada é validada antes da regra de negócio;
+- o `controller` delega para o `service`;
+- o `service` lança exceções adequadas ao cenário;
+- o filtro global devolve erro em formato único.
 
-## Exemplo guiado: padronizando erros na API de produtos
+## Correção passo a passo da Prática 02
 
-### Passo 1: lançar exceções semânticas no service
+### Passo 1: revisar DTOs e contrato da tarefa
 
-Arquivo `src/produtos/produtos.service.ts`:
+Estrutura esperada da tarefa:
+
+```ts
+type Tarefa = {
+  id: number;
+  titulo: string;
+  descricao?: string;
+  status: 'aberta' | 'em_andamento' | 'concluida';
+  prioridade: number;
+};
+```
+
+Checklist rápido dos DTOs:
+
+- `CreateTarefaDto` com `titulo` obrigatório e não vazio;
+- `descricao` opcional;
+- `status` restrito aos valores permitidos;
+- `prioridade` validada entre `1` e `5`;
+- `UpdateTarefaDto` com campos opcionais.
+
+### Passo 2: corrigir filtros no controller
+
+Arquivo `src/tarefas/tarefas.controller.ts`:
+
+```ts
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { CreateTarefaDto } from './dto/create-tarefa.dto';
+import { UpdateTarefaDto } from './dto/update-tarefa.dto';
+import { TarefasService } from './tarefas.service';
+
+@Controller('tarefas')
+export class TarefasController {
+  constructor(private readonly tarefasService: TarefasService) {}
+
+  @Get()
+  listar(
+    @Query('status') status?: string,
+    @Query('prioridade', new DefaultValuePipe(5), ParseIntPipe)
+    prioridadeMaxima?: number,
+  ) {
+    return this.tarefasService.listar(status, prioridadeMaxima);
+  }
+
+  @Get(':id')
+  buscarPorId(@Param('id', ParseIntPipe) id: number) {
+    return this.tarefasService.buscarPorId(id);
+  }
+
+  @Post()
+  criar(@Body() body: CreateTarefaDto) {
+    return this.tarefasService.criar(body);
+  }
+
+  @Patch(':id')
+  atualizarParcial(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateTarefaDto,
+  ) {
+    return this.tarefasService.atualizarParcial(id, body);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  remover(@Param('id', ParseIntPipe) id: number) {
+    this.tarefasService.remover(id);
+  }
+}
+```
+
+Pontos de atenção:
+
+- filtros de listagem ficam na query string;
+- `ParseIntPipe` evita conversão manual de `id`;
+- `@HttpCode(204)` deixa o `DELETE` sem corpo de resposta.
+
+### Passo 3: aplicar exceções semânticas no service
+
+Arquivo `src/tarefas/tarefas.service.ts`:
 
 ```ts
 import {
@@ -141,96 +204,89 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
-
-type Produto = {
-  id: number;
-  nome: string;
-  categoria: string;
-  preco: number;
-  ativo: boolean;
-};
+import { CreateTarefaDto } from './dto/create-tarefa.dto';
+import { UpdateTarefaDto } from './dto/update-tarefa.dto';
 
 @Injectable()
-export class ProdutosService {
-  private produtos: Produto[] = [
-    { id: 1, nome: 'Notebook', categoria: 'hardware', preco: 3500, ativo: true },
-    { id: 2, nome: 'Mouse', categoria: 'hardware', preco: 120, ativo: true },
-    { id: 3, nome: 'Curso NestJS', categoria: 'educacao', preco: 89, ativo: false },
-  ];
+export class TarefasService {
+  private tarefas: {
+    id: number;
+    titulo: string;
+    descricao?: string;
+    status: 'aberta' | 'em_andamento' | 'concluida';
+    prioridade: number;
+  }[] = [];
 
-  listar(categoria?: string, limite?: number) {
-    let resultado = [...this.produtos];
+  listar(status?: string, prioridadeMaxima?: number) {
+    let resultado = [...this.tarefas];
 
-    if (categoria) {
-      resultado = resultado.filter((p) => p.categoria === categoria);
+    if (status) {
+      resultado = resultado.filter((t) => t.status === status);
     }
 
-    if (limite && limite > 0) {
-      resultado = resultado.slice(0, limite);
+    if (prioridadeMaxima !== undefined) {
+      resultado = resultado.filter((t) => t.prioridade <= prioridadeMaxima);
     }
 
     return resultado;
   }
 
   buscarPorId(id: number) {
-    const produto = this.produtos.find((p) => p.id === id);
+    const tarefa = this.tarefas.find((t) => t.id === id);
 
-    if (!produto) {
-      throw new NotFoundException('Produto nao encontrado');
+    if (!tarefa) {
+      throw new NotFoundException('Tarefa nao encontrada');
     }
 
-    return produto;
+    return tarefa;
   }
 
-  criar(dados: CreateProdutoDto) {
-    const duplicado = this.produtos.some(
-      (p) => p.nome.toLowerCase() === dados.nome.toLowerCase(),
+  criar(dados: CreateTarefaDto) {
+    const duplicada = this.tarefas.some(
+      (t) => t.titulo.toLowerCase() === dados.titulo.toLowerCase(),
     );
 
-    if (duplicado) {
-      throw new ConflictException('Ja existe produto com esse nome');
-    }
-
-    if (dados.preco <= 0) {
-      throw new BadRequestException('Preco deve ser maior que zero');
+    if (duplicada) {
+      throw new ConflictException('Ja existe tarefa com esse titulo');
     }
 
     const novoId =
-      this.produtos.length > 0
-        ? Math.max(...this.produtos.map((p) => p.id)) + 1
+      this.tarefas.length > 0
+        ? Math.max(...this.tarefas.map((t) => t.id)) + 1
         : 1;
 
-    const novoProduto: Produto = { id: novoId, ...dados };
-    this.produtos.push(novoProduto);
+    const novaTarefa = { id: novoId, ...dados };
+    this.tarefas.push(novaTarefa);
 
-    return novoProduto;
+    return novaTarefa;
   }
 
-  atualizarParcial(id: number, dados: UpdateProdutoDto) {
-    const produto = this.buscarPorId(id);
+  atualizarParcial(id: number, dados: UpdateTarefaDto) {
+    const tarefa = this.buscarPorId(id);
 
-    if (dados.preco !== undefined && dados.preco <= 0) {
-      throw new BadRequestException('Preco deve ser maior que zero');
+    if (dados.prioridade !== undefined && (dados.prioridade < 1 || dados.prioridade > 5)) {
+      throw new BadRequestException('Prioridade deve estar entre 1 e 5');
     }
 
-    const atualizado = { ...produto, ...dados };
-    this.produtos = this.produtos.map((p) => (p.id === id ? atualizado : p));
+    const atualizada = { ...tarefa, ...dados };
+    this.tarefas = this.tarefas.map((t) => (t.id === id ? atualizada : t));
 
-    return atualizado;
+    return atualizada;
+  }
+
+  remover(id: number) {
+    const existe = this.tarefas.some((t) => t.id === id);
+
+    if (!existe) {
+      throw new NotFoundException('Tarefa nao encontrada');
+    }
+
+    this.tarefas = this.tarefas.filter((t) => t.id !== id);
   }
 }
 ```
 
-Pontos de atenção:
-
-1. `NotFoundException` comunica ausência de recurso.
-2. `ConflictException` comunica duplicidade.
-3. `BadRequestException` comunica entrada inválida.
-4. A exceção é lançada perto da regra que detecta o problema.
-
-### Passo 2: criar filtro global de exceções HTTP
+### Passo 4: criar filtro global de exceções
 
 Arquivo `src/common/filters/http-exception.filter.ts`:
 
@@ -288,7 +344,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 }
 ```
 
-### Passo 3: registrar filtro no `main.ts`
+### Passo 5: registrar filtro no `main.ts`
 
 Arquivo `src/main.ts`:
 
@@ -317,231 +373,113 @@ async function bootstrap() {
 bootstrap();
 ```
 
-### Passo 4: revisar códigos de sucesso no controller
-
-Arquivo `src/produtos/produtos.controller.ts`:
-
-```ts
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
-import { UpdateProdutoDto } from './dto/update-produto.dto';
-import { ProdutosService } from './produtos.service';
-
-@Controller('produtos')
-export class ProdutosController {
-  constructor(private readonly produtosService: ProdutosService) {}
-
-  @Get()
-  listar(
-    @Query('categoria') categoria?: string,
-    @Query('limite', new DefaultValuePipe(10), ParseIntPipe) limite?: number,
-  ) {
-    return this.produtosService.listar(categoria, limite);
-  }
-
-  @Get(':id')
-  buscarPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.produtosService.buscarPorId(id);
-  }
-
-  @Post()
-  criar(@Body() body: CreateProdutoDto) {
-    return this.produtosService.criar(body);
-  }
-
-  @Patch(':id')
-  atualizarParcial(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateProdutoDto,
-  ) {
-    return this.produtosService.atualizarParcial(id, body);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  remover(@Param('id', ParseIntPipe) id: number) {
-    this.produtosService.remover(id);
-  }
-}
-```
-
-Ponto de atenção:
-
-- `@HttpCode(204)` em `DELETE` indica remoção bem-sucedida sem corpo de resposta.
-
-## Testando tratamento de erros na prática
+## Testes recomendados durante a correção
 
 Com a aplicação em execução, teste:
 
 ```text
-GET     /produtos/999
-POST    /produtos (nome duplicado)
-POST    /produtos (payload invalido)
-PATCH   /produtos/1 (preco <= 0)
-DELETE  /produtos/999
+GET     /tarefas?status=aberta&prioridade=3
+GET     /tarefas/999
+POST    /tarefas (titulo duplicado)
+POST    /tarefas (payload invalido)
+PATCH   /tarefas/1 (prioridade fora de 1..5)
+DELETE  /tarefas/999
+DELETE  /tarefas/1
 ```
 
-Exemplo `404`:
+Exemplo de `404`:
 
 ```bash
-curl -i http://localhost:3000/produtos/999
+curl -i http://localhost:3000/tarefas/999
 ```
 
-Exemplo `409`:
+Exemplo de `409`:
 
 ```bash
-curl -i -X POST http://localhost:3000/produtos \
+curl -i -X POST http://localhost:3000/tarefas \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Notebook","categoria":"hardware","preco":3000,"ativo":true}'
+  -d '{"titulo":"Revisar DTO","descricao":"Ajustar validacoes","status":"aberta","prioridade":3}'
 ```
 
-Exemplo `400`:
+Exemplo de `400`:
 
 ```bash
-curl -i -X PATCH http://localhost:3000/produtos/1 \
+curl -i -X PATCH http://localhost:3000/tarefas/1 \
   -H "Content-Type: application/json" \
-  -d '{"preco":0}'
+  -d '{"prioridade":9}'
 ```
-
-Resposta esperada:
-
-```json
-{
-  "statusCode": 400,
-  "error": "Bad Request",
-  "message": "Preco deve ser maior que zero",
-  "timestamp": "2026-04-24T12:00:00.000Z",
-  "path": "/produtos/1",
-  "method": "PATCH"
-}
-```
-
-## Utilizando Thunder Client para validar erros
-
-No Thunder Client, confira em cada requisição:
-
-- método e URL corretos;
-- status retornado (`400`, `404`, `409` etc.);
-- corpo de resposta no padrão do filtro;
-- diferença entre respostas de sucesso e falha.
-
-Fluxo recomendado para a aula:
-
-1. Criar coleção `Encontro 11 - Erros e Filtros`.
-2. Salvar requisições de sucesso e falha lado a lado.
-3. Comparar os status HTTP e discutir por que cada código foi usado.
 
 ## Erros comuns e como corrigir
 
-### Erro: retornar `200` quando o recurso não existe
+### Erro: usar filtro como parte da rota
 
-Sintoma: endpoint responde com objeto vazio, `null` ou mensagem genérica.
-
-Correção:
-
-- lançar `NotFoundException` quando não encontrar o recurso.
-
-### Erro: usar sempre `BadRequestException`
-
-Sintoma: a API perde semântica e dificulta tratamento no frontend.
+Sintoma: endpoints como `GET /tarefas/aberta` para listar por status.
 
 Correção:
 
-- escolher a exceção específica para cada cenário.
+- usar query string (`GET /tarefas?status=aberta`).
 
-### Erro: padronizar manualmente em cada controller
+### Erro: retornar `200` para tudo, inclusive remoção
 
-Sintoma: duplicação de código e respostas inconsistentes.
-
-Correção:
-
-- criar `Exception Filter` global.
-
-### Erro: ignorar status corretos de sucesso
-
-Sintoma: `DELETE` retorna `200` com payload arbitrário sem necessidade.
+Sintoma: `DELETE` responde `200` com payload irrelevante.
 
 Correção:
 
-- usar `@HttpCode(204)` quando a remoção não precisa devolver conteúdo.
+- usar `@HttpCode(204)` quando não há conteúdo de retorno.
+
+### Erro: lançar sempre `BadRequestException`
+
+Sintoma: frontend não distingue duplicidade de item inexistente.
+
+Correção:
+
+- usar `404` para ausência de recurso e `409` para conflito.
+
+### Erro: padronizar erro manualmente em cada endpoint
+
+Sintoma: respostas de erro inconsistentes entre rotas.
+
+Correção:
+
+- centralizar no `Exception Filter` global.
 
 ## Checklist de aprendizagem
 
 Ao final, confirme se você consegue:
 
-- explicar diferença entre erro de validação, não encontrado e conflito;
-- mapear cenários para códigos HTTP adequados;
-- lançar exceções semânticas no service;
-- criar e registrar filtro global de exceções;
-- validar respostas de erro com payload padronizado;
+- explicar como filtros de query refinam listagens;
+- mapear cada cenário de falha para status HTTP adequado;
+- lançar exceções semânticas no `service`;
+- aplicar filtro global para padronizar payload de erro;
 - justificar quando usar `200`, `201` e `204`.
 
-## Prática de laboratório (Prática 03)
-
-### Proposta
-
-Evoluir a API de `tarefas` com tratamento de erros semântico e padronizado.
-
-### Requisitos da prática
-
-- implementar exceções adequadas no `tarefas.service.ts`;
-- usar `NotFoundException` para `id` inexistente;
-- usar `BadRequestException` para transições inválidas de status;
-- usar `ConflictException` para duplicidade de título;
-- criar filtro global para padronizar resposta de erro;
-- aplicar `@HttpCode(204)` em remoção bem-sucedida;
-- testar cenários de sucesso e erro com cliente HTTP;
-- executar `npm run lint`;
-- registrar commits com mensagens semânticas.
-
-### Instruções sugeridas
-
-1. Revise as rotas atuais de `tarefas` e liste cenários de falha esperados.
-2. Aplique exceções semânticas no service, próximas às regras de negócio.
-3. Crie filtro global em `src/common/filters`.
-4. Registre o filtro no `main.ts`.
-5. Ajuste códigos de sucesso no controller.
-6. Teste com Thunder Client ou `curl` e salve evidências.
-7. Execute lint e faça commits incrementais.
-
-### Entrega
+## Entrega da correção (Encontro 11)
 
 Apresentar:
 
-- código de `tarefas.controller.ts` e `tarefas.service.ts`;
+- código atualizado de `tarefas.controller.ts` e `tarefas.service.ts`;
+- DTOs utilizados na Prática 02;
 - arquivo do filtro global de exceções;
-- evidência de respostas `400`, `404` e `409`;
+- evidências de respostas `400`, `404` e `409`;
 - evidência de remoção com `204`;
 - evidência de execução do `lint`;
-- link do repositório GitHub com histórico dos commits.
+- link do repositório GitHub com histórico de commits da correção.
 
-### Critérios de sucesso
+## Critérios de sucesso
 
-Considere a prática concluída quando:
+Considere a correção concluída quando:
 
-- cada cenário de erro retorna status HTTP coerente;
-- payload de erro segue padrão único;
-- tratamento de erro está centralizado e sem duplicação desnecessária;
-- endpoints de sucesso usam códigos adequados ao contrato da operação.
+- os filtros de listagem funcionam por query string;
+- entradas inválidas são bloqueadas antes da regra de negócio;
+- erros retornam status HTTP coerente e payload padronizado;
+- endpoints de sucesso usam códigos adequados ao contrato;
+- a solução final está organizada em `module`, `controller`, `service`, DTOs e filtro global.
 
 ## Síntese do encontro
 
-Você estudou que:
+Você consolidou que:
 
-- tratar erro é parte do contrato da API, não detalhe de implementação;
-- exceções semânticas tornam respostas mais úteis para frontend e testes;
-- filtros globais padronizam formato de erro e reduzem repetição;
-- códigos HTTP corretos melhoram legibilidade, depuração e manutenção;
-- uma API profissional comunica sucesso e falha com consistência.
+- a Prática 02 pode ser corrigida com ganhos reais de robustez;
+- filtros, tratamento de erros e códigos HTTP fazem parte do contrato da API;
+- exceções semânticas e filtros globais reduzem ambiguidades;
+- uma API profissional comunica sucesso e falha de forma previsível.

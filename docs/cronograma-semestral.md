@@ -14,7 +14,7 @@ Cada encontro corresponde a 2 aulas de 45 minutos (90 minutos por encontro).
 | [8](./encontros/encontro-08.md) | U1 | Realização da Atividade Avaliativa 01: API de reservas em memória | Avaliação prática 01 |
 | [9](./encontros/encontro-09.md) | U1 | Correção da Atividade Avaliativa 01: API de reservas com validação e PATCH | Correção Avaliativa 01 |
 | [10](./encontros/encontro-10.md) | U1 | DTOs, pipes e validação de dados | Prática 02 |
-| [11](./encontros/encontro-11.md) | U1 | Tratamento de erros, filtros e códigos de resposta | Prática 03 |
+| [11](./encontros/encontro-11.md) | U1 | Correção da Prática 02: filtros, tratamento de erros e códigos de resposta | Correção Prática 02 |
 | [12](./encontros/encontro-12.md) | U1 | Revisão parcial da Unidade 1 e checkpoint prático | Checkpoint U1 |
 | [13](./encontros/encontro-13.md) | U1 | Formulários, serialização e payloads vindos do cliente | - |
 | [14](./encontros/encontro-14.md) | U1 | Upload de arquivos e tratamento multipart | Prática 05 |
