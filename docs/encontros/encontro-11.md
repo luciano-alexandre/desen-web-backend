@@ -78,8 +78,7 @@ Leitura do fluxo:
 
 Estrutura esperada da tarefa:
 
-Referência da prática: este trecho está ligado ao contrato de dados da Prática 02 (campos e tipos esperados para a entidade `tarefa`).
-O objetivo aqui é validar se DTOs e regras de entrada do encontro 10 estão alinhados com a estrutura abaixo.
+Antes de avançar na correção, definimos com precisão qual estrutura uma `tarefa` deve ter. Esse contrato é a base para conferir se os DTOs do encontro 10 estão aceitando apenas o que faz sentido e bloqueando entradas inconsistentes.
 
 ```ts
 type Tarefa = {
@@ -103,8 +102,7 @@ Checklist rápido dos DTOs:
 
 Arquivo `src/tarefas/tarefas.controller.ts`:
 
-Referência da prática: este trecho corresponde à parte de rotas, pipes e filtros da Prática 02.
-Aqui estamos corrigindo a listagem com query string (`status` e `prioridade`), mantendo `ParseIntPipe` para `:id` e aplicando `204` no `DELETE`.
+Neste trecho, ajustamos o `controller` para responder corretamente aos cenários da prática: listar com filtros opcionais, buscar por `id`, criar, atualizar e remover tarefas. Também reforçamos o uso de pipes para tratar entrada (`ParseIntPipe`) e o retorno adequado no `DELETE` com `204 No Content`.
 
 ```ts
 import {
@@ -173,8 +171,7 @@ Pontos de atenção:
 
 Arquivo `src/tarefas/tarefas.service.ts`:
 
-Referência da prática: este trecho cobre regras de negócio e tratamento de erros durante a correção.
-O que está sendo feito: mapear cenários para `NotFoundException` (`404`), `ConflictException` (`409`) e `BadRequestException` (`400`), além de manter os filtros da listagem no `service`.
+Aqui concentramos no `service` a lógica que realmente decide o comportamento da API. A correção transforma cada cenário de falha em uma exceção semântica (`404`, `409`, `400`), facilitando o teste da prática e deixando claro para o cliente o motivo de cada erro.
 
 ```ts
 import {
@@ -269,8 +266,7 @@ export class TarefasService {
 
 Arquivo `src/common/filters/http-exception.filter.ts`:
 
-Referência da prática: este trecho atende ao requisito de padronização da resposta de erro.
-O que está sendo feito: interceptar exceções HTTP e devolver um payload único com `statusCode`, `error`, `message`, `timestamp`, `path` e `method`.
+Em vez de montar respostas de erro manualmente em cada rota, criamos um filtro global para centralizar esse trabalho. Com isso, toda falha HTTP passa a sair no mesmo formato, o que melhora leitura, depuração e integração com frontend.
 
 ```ts
 import {
@@ -330,8 +326,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
 Arquivo `src/main.ts`:
 
-Referência da prática: este trecho conclui a integração global da correção.
-O que está sendo feito: manter o `ValidationPipe` do encontro 10 e registrar o `HttpExceptionFilter` para garantir consistência em todas as rotas.
+Este passo fecha a correção ao registrar, no ponto de entrada da aplicação, tanto a validação quanto a padronização de erros. Na prática, isso garante que qualquer rota de `tarefas` siga o mesmo contrato de entrada e saída.
 
 ```ts
 import { ValidationPipe } from '@nestjs/common';
