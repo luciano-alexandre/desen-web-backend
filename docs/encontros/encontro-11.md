@@ -73,7 +73,7 @@ Leitura do fluxo:
 
 ## Correção passo a passo da Prática 02
 
-### Passo 1: revisar DTOs e contrato da tarefa
+### Passo 1: revisar contrato da tarefa
 
 Estrutura esperada da tarefa:
 
@@ -89,15 +89,70 @@ type Tarefa = {
 };
 ```
 
+### Passo 2: criar os DTOs de `tarefas`
+
+Se os DTOs ainda não foram criados na prática original, este é o momento de resolver isso. Eles vão definir o contrato de entrada do `POST` e do `PATCH`, garantindo validação consistente antes da regra de negócio.
+
+Arquivo `src/tarefas/dto/create-tarefa.dto.ts`:
+
+```ts
+import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
+
+export class CreateTarefaDto {
+  @IsString()
+  @IsNotEmpty()
+  titulo: string;
+
+  @IsOptional()
+  @IsString()
+  descricao?: string;
+
+  @IsIn(['aberta', 'em_andamento', 'concluida'])
+  status: 'aberta' | 'em_andamento' | 'concluida';
+
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  prioridade: number;
+}
+```
+
+Arquivo `src/tarefas/dto/update-tarefa.dto.ts`:
+
+```ts
+import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
+
+export class UpdateTarefaDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  titulo?: string;
+
+  @IsOptional()
+  @IsString()
+  descricao?: string;
+
+  @IsOptional()
+  @IsIn(['aberta', 'em_andamento', 'concluida'])
+  status?: 'aberta' | 'em_andamento' | 'concluida';
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  prioridade?: number;
+}
+```
+
 Checklist rápido dos DTOs:
 
 - `CreateTarefaDto` com `titulo` obrigatório e não vazio;
 - `descricao` opcional;
 - `status` restrito aos valores permitidos;
 - `prioridade` validada entre `1` e `5`;
-- `UpdateTarefaDto` com campos opcionais.
+- `UpdateTarefaDto` com todos os campos opcionais para atualização parcial.
 
-### Passo 2: corrigir filtros no controller
+### Passo 3: corrigir filtros no controller
 
 Arquivo `src/tarefas/tarefas.controller.ts`:
 
@@ -166,7 +221,7 @@ Pontos de atenção:
 - `ParseIntPipe` evita conversão manual de `id`;
 - `@HttpCode(204)` deixa o `DELETE` sem corpo de resposta.
 
-### Passo 3: aplicar exceções semânticas no service
+### Passo 4: aplicar exceções semânticas no service
 
 Arquivo `src/tarefas/tarefas.service.ts`:
 
@@ -261,7 +316,7 @@ export class TarefasService {
 }
 ```
 
-### Passo 4: manter apenas o `ValidationPipe` global no `main.ts`
+### Passo 5: manter apenas o `ValidationPipe` global no `main.ts`
 
 Para simplificar a correção, não vamos criar `Exception Filter` global neste momento. O foco é garantir que validação, filtros e exceções semânticas já resolvam os cenários da prática, usando a resposta padrão de erro do NestJS.
 
