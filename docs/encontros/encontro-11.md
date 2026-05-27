@@ -108,6 +108,9 @@ Leitura do fluxo:
 
 Estrutura esperada da tarefa:
 
+Referência da prática: este trecho está ligado ao contrato de dados da Prática 02 (campos e tipos esperados para a entidade `tarefa`).
+O objetivo aqui é validar se DTOs e regras de entrada do encontro 10 estão alinhados com a estrutura abaixo.
+
 ```ts
 type Tarefa = {
   id: number;
@@ -129,6 +132,9 @@ Checklist rápido dos DTOs:
 ### Passo 2: corrigir filtros no controller
 
 Arquivo `src/tarefas/tarefas.controller.ts`:
+
+Referência da prática: este trecho corresponde à parte de rotas, pipes e filtros da Prática 02.
+Aqui estamos corrigindo a listagem com query string (`status` e `prioridade`), mantendo `ParseIntPipe` para `:id` e aplicando `204` no `DELETE`.
 
 ```ts
 import {
@@ -196,6 +202,9 @@ Pontos de atenção:
 ### Passo 3: aplicar exceções semânticas no service
 
 Arquivo `src/tarefas/tarefas.service.ts`:
+
+Referência da prática: este trecho cobre regras de negócio e tratamento de erros durante a correção.
+O que está sendo feito: mapear cenários para `NotFoundException` (`404`), `ConflictException` (`409`) e `BadRequestException` (`400`), além de manter os filtros da listagem no `service`.
 
 ```ts
 import {
@@ -290,6 +299,9 @@ export class TarefasService {
 
 Arquivo `src/common/filters/http-exception.filter.ts`:
 
+Referência da prática: este trecho atende ao requisito de padronização da resposta de erro.
+O que está sendo feito: interceptar exceções HTTP e devolver um payload único com `statusCode`, `error`, `message`, `timestamp`, `path` e `method`.
+
 ```ts
 import {
   ArgumentsHost,
@@ -347,6 +359,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 ### Passo 5: registrar filtro no `main.ts`
 
 Arquivo `src/main.ts`:
+
+Referência da prática: este trecho conclui a integração global da correção.
+O que está sendo feito: manter o `ValidationPipe` do encontro 10 e registrar o `HttpExceptionFilter` para garantir consistência em todas as rotas.
 
 ```ts
 import { ValidationPipe } from '@nestjs/common';
