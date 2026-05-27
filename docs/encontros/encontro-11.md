@@ -9,7 +9,7 @@ Correção da Prática 02: API de tarefas com filtros, tratamento de erros e có
 - Revisar os critérios técnicos da Prática 02 (DTOs, pipes e validação).
 - Corrigir o uso de filtros na listagem de tarefas (`status` e `prioridade`).
 - Aplicar tratamento de erros com exceções HTTP semânticas no NestJS.
-- Criar e registrar um filtro global para padronizar respostas de erro.
+- Manter a correção enxuta usando o comportamento padrão de erros do NestJS.
 - Consolidar o uso de códigos de resposta HTTP coerentes em sucesso e falha.
 
 ## Setup inicial para a correção da Prática 02
@@ -18,11 +18,11 @@ Antes de iniciar a correção, prepare o projeto evoluído até o encontro 10.
 
 ## Visão geral
 
-No encontro 10, foi contruída a Prática 02 com foco em DTOs, pipes e validação de entrada.
+No encontro 10, foi construída a Prática 02 com foco em DTOs, pipes e validação de entrada.
 
 Neste encontro, a proposta é corrigir essa prática passo a passo e, durante a correção, incorporar os tópicos de encontro 11: filtros de listagem, tratamento de erros e códigos de resposta HTTP.
 
-Ao final, a expectativa é que a API de `tarefas` esteja validando entradas, aplicando regras de negócio com exceções semânticas e respondendo com payload de erro padronizado.
+Ao final, a expectativa é que a API de `tarefas` esteja validando entradas, aplicando regras de negócio com exceções semânticas e respondendo erros com status e mensagens coerentes.
 
 ## Pergunta central
 
@@ -38,7 +38,7 @@ Durante a correção, vamos adotar as seguintes decisões:
 - `PATCH /tarefas/:id` altera parcialmente uma tarefa;
 - `DELETE /tarefas/:id` remove tarefa com `204 No Content`;
 - erros de domínio usam exceções semânticas (`400`, `404`, `409`);
-- filtro global padroniza o payload de erro.
+- respostas de erro seguem o formato padrão do NestJS.
 
 ## Códigos HTTP trabalhados nesta correção
 
@@ -60,9 +60,8 @@ flowchart LR
     VP --> CT[TarefasController]
     CT --> SV[TarefasService]
     SV -->|falha de dominio| EX[HttpException]
-    EX --> FL[Exception Filter]
-    FL --> R[Resposta padronizada]
-    R --> C
+    EX --> N[NestJS resposta padrao]
+    N --> C
 ```
 
 Leitura do fluxo:
@@ -70,7 +69,7 @@ Leitura do fluxo:
 - a entrada é validada antes da regra de negócio;
 - o `controller` delega para o `service`;
 - o `service` lança exceções adequadas ao cenário;
-- o filtro global devolve erro em formato único.
+- o NestJS devolve a resposta de erro padrão com o status correspondente.
 
 ## Correção passo a passo da Prática 02
 
@@ -262,77 +261,16 @@ export class TarefasService {
 }
 ```
 
-### Passo 4: criar filtro global de exceções
+### Passo 4: manter apenas o `ValidationPipe` global no `main.ts`
 
-Arquivo `src/common/filters/http-exception.filter.ts`:
-
-Em vez de montar respostas de erro manualmente em cada rota, criamos um filtro global para centralizar esse trabalho. Com isso, toda falha HTTP passa a sair no mesmo formato, o que melhora leitura, depuração e integração com frontend.
-
-```ts
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-
-    const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
-
-    let message: string | string[] = 'Erro inesperado';
-    let error = HttpStatus[status] ?? 'HttpException';
-
-    if (typeof exceptionResponse === 'string') {
-      message = exceptionResponse;
-    }
-
-    if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-      const body = exceptionResponse as {
-        message?: string | string[];
-        error?: string;
-      };
-
-      if (body.message) {
-        message = body.message;
-      }
-
-      if (body.error) {
-        error = body.error;
-      }
-    }
-
-    response.status(status).json({
-      statusCode: status,
-      error,
-      message,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
-    });
-  }
-}
-```
-
-### Passo 5: registrar filtro no `main.ts`
+Para simplificar a correção, não vamos criar `Exception Filter` global neste momento. O foco é garantir que validação, filtros e exceções semânticas já resolvam os cenários da prática, usando a resposta padrão de erro do NestJS.
 
 Arquivo `src/main.ts`:
-
-Este passo fecha a correção ao registrar, no ponto de entrada da aplicação, tanto a validação quanto a padronização de erros. Na prática, isso garante que qualquer rota de `tarefas` siga o mesmo contrato de entrada e saída.
 
 ```ts
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -345,8 +283,6 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
-
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(3000);
 }
@@ -415,13 +351,14 @@ Correção:
 
 - usar `404` para ausência de recurso e `409` para conflito.
 
-### Erro: padronizar erro manualmente em cada endpoint
+### Erro: esperar um payload customizado sem ter implementado filtro global
 
-Sintoma: respostas de erro inconsistentes entre rotas.
+Sintoma: o aluno espera campos extras no erro, mas recebe o formato padrão do NestJS.
 
 Correção:
 
-- centralizar no `Exception Filter` global.
+- nesta versão da correção, usar o padrão nativo do NestJS;
+- se necessário, tratar filtro global como evolução futura.
 
 ## Checklist de aprendizagem
 
@@ -430,7 +367,7 @@ Ao final, confirme se você consegue:
 - explicar como filtros de query refinam listagens;
 - mapear cada cenário de falha para status HTTP adequado;
 - lançar exceções semânticas no `service`;
-- aplicar filtro global para padronizar payload de erro;
+- interpretar a resposta padrão do NestJS para erros HTTP;
 - justificar quando usar `200`, `201` e `204`.
 
 ## Entrega da correção (Encontro 11)
@@ -439,7 +376,6 @@ Apresentar:
 
 - código atualizado de `tarefas.controller.ts` e `tarefas.service.ts`;
 - DTOs utilizados na Prática 02;
-- arquivo do filtro global de exceções;
 - evidências de respostas `400`, `404` e `409`;
 - evidência de remoção com `204`;
 - evidência de execução do `lint`;
@@ -451,9 +387,9 @@ Considere a correção concluída quando:
 
 - os filtros de listagem funcionam por query string;
 - entradas inválidas são bloqueadas antes da regra de negócio;
-- erros retornam status HTTP coerente e payload padronizado;
+- erros retornam status HTTP coerente com mensagens claras;
 - endpoints de sucesso usam códigos adequados ao contrato;
-- a solução final está organizada em `module`, `controller`, `service`, DTOs e filtro global.
+- a solução final está organizada em `module`, `controller`, `service` e DTOs.
 
 ## Síntese do encontro
 
@@ -461,5 +397,5 @@ Você consolidou que:
 
 - a Prática 02 pode ser corrigida com ganhos reais de robustez;
 - filtros, tratamento de erros e códigos HTTP fazem parte do contrato da API;
-- exceções semânticas e filtros globais reduzem ambiguidades;
+- exceções semânticas já tornam a API mais clara e previsível;
 - uma API profissional comunica sucesso e falha de forma previsível.
