@@ -16,39 +16,9 @@ Correção da Prática 02: API de tarefas com filtros, tratamento de erros e có
 
 Antes de iniciar a correção, prepare o projeto evoluído até o encontro 10.
 
-### Pré-requisitos
-
-- projeto NestJS com módulo de `tarefas` e DTOs já criados;
-- `ValidationPipe` global ativo;
-- API executando localmente em `http://localhost:3000`;
-- cliente HTTP disponível (`curl`, Thunder Client, Insomnia ou Postman);
-- repositório Git configurado.
-
-### Passo 1: atualizar branch local
-
-```bash
-git pull
-```
-
-### Passo 2: criar branch de correção
-
-```bash
-git checkout -b fix/correcao-pratica-02-encontro-11
-```
-
-### Passo 3: subir a aplicação
-
-```bash
-npm run start:dev
-```
-
-### Passo 4: validar endpoint base
-
-Teste uma rota existente, como `GET /tarefas`, antes de iniciar as mudanças.
-
 ## Visão geral
 
-No encontro 10, a turma construiu a Prática 02 com foco em DTOs, pipes e validação de entrada.
+No encontro 10, foi contruída a Prática 02 com foco em DTOs, pipes e validação de entrada.
 
 Neste encontro, a proposta é corrigir essa prática passo a passo e, durante a correção, incorporar os tópicos de encontro 11: filtros de listagem, tratamento de erros e códigos de resposta HTTP.
 
