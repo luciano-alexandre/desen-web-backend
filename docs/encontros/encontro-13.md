@@ -592,13 +592,66 @@ Leitura do código:
 
 Não abra o arquivo apenas com `file://`. Use um servidor HTTP local.
 
-Uma opção simples:
+Uma opção simples, quando `npm` e `npx` podem ser executados:
 
 ```bash
 npx serve cliente-inscricoes -l 5500
 ```
 
 Depois, acesse o endereço exibido no terminal e confirme se ele corresponde a uma origem liberada no CORS da API.
+
+#### Alternativa com Docker
+
+Em computadores Windows nos quais a política de execução do PowerShell impede o
+uso de scripts como `npx.ps1`, o cliente estático pode ser servido por um
+container Nginx. Essa opção não exige instalar dependências JavaScript nem
+executar scripts `npm` no computador.
+
+Na pasta que contém `cliente-inscricoes`, crie o arquivo
+`docker-compose.yml`:
+
+```yaml
+services:
+  cliente:
+    image: nginx:alpine
+    ports:
+      - "5500:80"
+    volumes:
+      - ./cliente-inscricoes:/usr/share/nginx/html:ro
+```
+
+Inicie o servidor:
+
+```bash
+docker compose up -d cliente
+```
+
+Acesse:
+
+```text
+http://localhost:5500
+```
+
+Para encerrar:
+
+```bash
+docker compose down
+```
+
+Nesse cenário:
+
+- o Nginx executa dentro do container e serve `index.html` e `app.js`;
+- a pasta do cliente é montada no container, portanto basta atualizar o
+  navegador após editar os arquivos;
+- a porta `5500` continua compatível com as origens liberadas no CORS;
+- `http://localhost:3000` permanece correto no `fetch`, pois o JavaScript é
+  executado pelo navegador, não pelo container.
+
+O comando `docker compose` normalmente não é afetado pela política do
+PowerShell que bloqueia arquivos `.ps1`. Entretanto, essa alternativa depende
+de o Docker Desktop estar instalado, em execução e autorizado no computador.
+Se a instituição bloquear qualquer comando de terminal ou o acesso ao Docker,
+o container não contornará essa restrição administrativa.
 
 ## Comparando formas de envio
 
