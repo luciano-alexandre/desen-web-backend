@@ -244,6 +244,8 @@ Catálogo de produtores, produtos, pedidos, estoque e entregas, com perfis de
 cliente e vendedor. O sistema pode consultar CEP ou frete em serviço externo e
 armazenar avaliações ou eventos do pedido.
 
+Grupo: Alejandro
+
 ### 7. Rede de doações e campanhas solidárias
 
 Organização de campanhas, itens necessários, pontos de coleta, doadores e
@@ -257,6 +259,8 @@ Grupo 7: Jonas
 Abertura, classificação, atribuição e acompanhamento de chamados de manutenção,
 com anexos e níveis de prioridade. A aplicação pode manter comentários e trilha
 de auditoria, e uma API externa pode apoiar notificações ou informações de local.
+
+Grupo: Pedro Eduardo
 
 ### 9. Planejamento de roteiros turísticos regionais
 
